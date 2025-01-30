@@ -1,0 +1,42 @@
+name: minitwitter
+services:
+  load-balancer:
+    container_name: load-balancer
+    image: nginx
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx.conf.ro
+
+  postgres:
+    container_name: my-postgres
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: supersecret123
+      POSTGRES_DB: minitwitter
+    volumes:
+      - ./docker-data/postgres:/var/lib/postgresql/data
+
+  minitwitter1:
+    image: wotasoy/simple-api
+    container_name: minitwitter1
+    restart: always
+    environment:
+      DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
+      command: /bin/sh -c "bunx drizzle-kit push && bun run prod"
+    volumes:
+      - ./docker-data/postgres:/var/lib/postgresql/data
+
+  minitwitter2:
+    image: wotasoy/simple-api
+    container_name: minitwitter2
+    restart: always
+    environment:
+      DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
+      command: /bin/sh -c "bunx drizzle-kit push && bun run prod"
+    volumes:
+      - ./docker-data/postgres:/var/lib/postgresql/data
