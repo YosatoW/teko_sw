@@ -4,8 +4,10 @@ To install dependencies:
 
 ```bash
 bun install
-
 bun update
+
+bun install ./frontend
+bun update ./frontend
 ```
 
 To run:
