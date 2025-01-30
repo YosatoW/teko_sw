@@ -1,4 +1,5 @@
 import express, { Router, type Request, type Response} from 'express'
+import ollama from 'ollama'
 const app = express()
 app.use(express.json())
 const port = 3000
@@ -55,4 +56,17 @@ app.delete('/api/posts/:id', (req: Request, res: Response) => {
     posts = posts.filter((post) => post.id !== id)
     res.send(posts)
 })
+ // Testen mit Ollama
+app.get('/api/posts/generate', async (req: Request, res: Response) => {
+    const response = await ollama.chat({
+    model: 'llama3.2:1b',
+    // model: 'deepseek-r1:1.5b',
+    messages: [{ role: 'user', content: 'Generieren eines zufälligen Twitter-Posts'
+    }],
+    })
+    const content = response.message.content
+    const nextId = posts[posts.length - 1].id + 1
+    posts.push({ id: nextId, content })
+    res.send(posts[posts.length - 1])
+    })
     
