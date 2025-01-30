@@ -22,14 +22,14 @@ services:
     volumes:
       - ./docker-data/postgres:/var/lib/postgresql/data
 
-  # minitwitter-frontend:
-  #   container_name: frontend
-  #   restart: always
-  #   build:
-  #     context: frontend
-  #     dockerfile: Dockerfile
-  #   environment:
-  #     NUX_PubliC_API_BASE_URL: http://localhost:80
+  minitwitter-frontend:
+    container_name: frontend
+    restart: always
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    environment:
+      NUX_PubliC_API_BASE_URL: http://localhost:80
 
   minitwitter1:
     image: wotasoy/simple-api

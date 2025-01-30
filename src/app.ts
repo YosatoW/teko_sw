@@ -1,9 +1,12 @@
 import express from 'express'
+import cors from 'cors'
+
 import {initializeAPI} from './api'
 
-const app = express()
 const port = 3000
+const app = express()
 
+app.use(cors())
 app.use(express.json())
 
 initializeAPI(app)
