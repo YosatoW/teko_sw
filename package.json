@@ -4,13 +4,19 @@
   "type": "module",
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/express": "^5.0.0"
+    "@types/express": "^5.0.0",
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.30.4",
+    "tsx": "^4.19.2"
   },
   "peerDependencies": {
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.39.1",
     "express": "^4.21.2",
-    "ollama": "^0.5.12"
+    "ollama": "^0.5.12",
+    "pg": "^8.13.1"
   }
 }
