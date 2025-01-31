@@ -3,11 +3,18 @@
 To install dependencies:
 
 ```bash
+
+
 bun install
 bun update
 
 bun install ./frontend
 bun update ./frontend
+
+bun add drizzle-orm pg dotenv
+bun add -D drizzle-kit tsx @types/pg
+
+docker compose build
 ```
 
 To run:

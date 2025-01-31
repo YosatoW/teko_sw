@@ -12,5 +12,4 @@ taskkill /F /FI "WINDOWTITLE eq Backend*" /T
 taskkill /F /FI "WINDOWTITLE eq Drizzle*" /T
 taskkill /F /FI "WINDOWTITLE eq Frontend*" /T
 
-echo Done!
 timeout /t 1
