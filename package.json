@@ -7,7 +7,7 @@
     "@types/express": "^5.0.0",
     "@types/pg": "^8.11.11",
     "drizzle-kit": "^0.30.4",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.3"
   },
   "peerDependencies": {
     "typescript": "^5.7.3"
@@ -17,15 +17,17 @@
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.8",
     "bcrypt": "^5.1.1",
+    "bullmq": "^5.41.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.39.1",
+    "drizzle-orm": "^0.39.3",
     "express": "^4.21.2",
+    "ioredis": "^5.5.0",
     "jsonwebtoken": "^9.0.2",
-    "nuxt-app": "./frontend",
-    "ollama": "^0.5.12",
-    "pg": "^8.13.1",
-    "zod": "^3.24.1",
+    "nuxt-app": "./Frontend",
+    "ollama": "^0.5.13",
+    "pg": "^8.13.3",
+    "zod": "^3.24.2",
     "zod-to-json-schema": "^3.24.1"
   },
   "trustedDependencies": [
