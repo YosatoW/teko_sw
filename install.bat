@@ -1,4 +1,3 @@
-install.bat
 @echo off
 echo Starte Bun-Installation...
 bun init -y
@@ -14,9 +13,3 @@ bun update --cwd ./frontend
 
 echo Fertig!
 pause
-
-
-
-.env
-DATABASE_URL=postgressql://postgres:supersecret123@localhost:5432/minitwitter
-JWT_SECRET=thesupersecretjwtsecret
