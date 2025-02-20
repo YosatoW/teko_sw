@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50">
     <div class="max-w-md w-full p-6 bg-white rounded-lg border border-gray-200">
-      <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Register</h2>
-      <form @submit.prevent="handleRegister">
+      <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Login</h2>
+      <form @submit.prevent="handleLogin">
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
             Username
@@ -31,13 +31,13 @@
           type="submit"
           class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600"
         >
-          Register
+          Login
         </button>
       </form>
       <p v-if="error" class="mt-4 text-red-500 text-center">{{ error }}</p>
       <p class="mt-4 text-center text-gray-600">
-        Already have an account?
-        <NuxtLink to="/login" class="text-blue-500 hover:text-blue-600">Login here</NuxtLink>
+        Don't have an account?
+        <NuxtLink to="/register" class="text-blue-500 hover:text-blue-600">Register here</NuxtLink>
       </p>
     </div>
   </div>
@@ -51,9 +51,9 @@ const username = ref('')
 const password = ref('')
 const error = ref('')
 
-const handleRegister = async () => {
+const handleLogin = async () => {
   try {
-    const response = await fetch(`${baseUrl}/api/auth/register`, {
+    const response = await fetch(`${baseUrl}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -66,13 +66,15 @@ const handleRegister = async () => {
 
     if (!response.ok) {
       const data = await response.json()
-      error.value = data.message
+      error.value = data.error
       return
     }
 
-    await router.push('/login')
+    const token = await response.text()
+    localStorage.setItem('token', token)
+    await router.push('/posts')
   } catch (e) {
-    error.value = 'An error occurred during registration'
+    error.value = 'An error occurred during login'
   }
 }
 </script>
