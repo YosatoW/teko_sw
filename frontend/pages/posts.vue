@@ -1,13 +1,71 @@
 <template>
   <div class="container mx-auto p-4">
+    <!-- Create new post section -->
+    <div class="mb-8 p-4 border rounded-lg bg-white">
+      <h2 class="text-xl font-bold mb-4">Create New Post</h2>
+      <form @submit.prevent="createPost" class="space-y-4">
+        <textarea
+          v-model="newPostContent"
+          class="w-full p-2 border rounded-lg resize-none h-24"
+          placeholder="What's on your mind?"
+          required
+        ></textarea>
+        <button
+          type="submit"
+          class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+        >
+          Post
+        </button>
+      </form>
+    </div>
+
+    <!-- Posts list -->
     <div v-if="pending">Loading...</div>
     <div v-else-if="error">Error loading posts</div>
-    <div v-else>
+    <div v-else class="space-y-4">
       <h1 class="text-2xl font-bold mb-4">Posts</h1>
-      <div class="space-y-4">
-        <div v-for="post in posts" :key="post.id" class="p-4 border rounded-lg bg-white">
+      <div v-for="post in posts" :key="post.id" class="p-4 border rounded-lg bg-white">
+        <!-- Edit mode -->
+        <div v-if="editingPost?.id === post.id">
+          <textarea
+            v-model="editingPost.content"
+            class="w-full p-2 border rounded-lg resize-none h-24 mb-2"
+          ></textarea>
+          <div class="flex gap-2">
+            <button
+              @click="updatePost(post.id)"
+              class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+            >
+              Save
+            </button>
+            <button
+              @click="cancelEdit"
+              class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+        <!-- View mode -->
+        <div v-else>
           <p class="text-gray-800">{{ post.content }}</p>
-          <p class="text-sm text-gray-500 mt-2">Posted by: {{ post.userId }}</p>
+          <div class="mt-2 flex justify-between items-center">
+            <p class="text-sm text-gray-500">Posted by: {{ post.userId }}</p>
+            <div v-if="post.userId === currentUserId" class="flex gap-2">
+              <button
+                @click="startEdit(post)"
+                class="text-blue-500 hover:text-blue-600"
+              >
+                Edit
+              </button>
+              <button
+                @click="deletePost(post.id)"
+                class="text-red-500 hover:text-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -16,9 +74,85 @@
 
 <script setup lang="ts">
 const { baseUrl } = useApi()
-const { pending, data: posts, error } = await useFetch(`${baseUrl}/api/posts`, {
+const newPostContent = ref('')
+const editingPost = ref<{ id: number; content: string } | null>(null)
+const currentUserId = computed(() => {
+  const token = localStorage.getItem('token')
+  if (!token) return null
+  const payload = JSON.parse(atob(token.split('.')[1]))
+  return payload.id
+})
+
+// Fetch posts
+const { pending, data: posts, error, refresh } = await useFetch(`${baseUrl}/api/posts`, {
   headers: {
     'Authorization': `Bearer ${localStorage.getItem('token')}`
   }
 })
+
+// Create new post
+const createPost = async () => {
+  try {
+    await fetch(`${baseUrl}/api/posts`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: newPostContent.value }),
+    })
+    newPostContent.value = ''
+    refresh()
+  } catch (e) {
+    console.error('Error creating post:', e)
+  }
+}
+
+// Start editing post
+const startEdit = (post: any) => {
+  editingPost.value = {
+    id: post.id,
+    content: post.content
+  }
+}
+
+// Cancel editing
+const cancelEdit = () => {
+  editingPost.value = null
+}
+
+// Update post
+const updatePost = async (id: number) => {
+  try {
+    await fetch(`${baseUrl}/api/posts/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: editingPost.value?.content }),
+    })
+    editingPost.value = null
+    refresh()
+  } catch (e) {
+    console.error('Error updating post:', e)
+  }
+}
+
+// Delete post
+const deletePost = async (id: number) => {
+  if (!confirm('Are you sure you want to delete this post?')) return
+  
+  try {
+    await fetch(`${baseUrl}/api/posts/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+    })
+    refresh()
+  } catch (e) {
+    console.error('Error deleting post:', e)
+  }
+}
 </script>
