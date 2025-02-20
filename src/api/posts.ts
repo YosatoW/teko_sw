@@ -2,20 +2,119 @@ import { type Express, type Request, type Response } from 'express'
 import { and, eq } from 'drizzle-orm';
 
 import { db } from '../database';
-import { postsTable, usersTable } from '../db/schema';
+import { postsTable, usersTable, commentsTable } from '../db/schema';
 
 export const initializePostsAPI = (app: Express) => {
+    // Update get posts to include approved comments
     app.get('/api/posts', async (req: Request, res: Response) => {
         const posts = await db
             .select({
                 id: postsTable.id,
                 content: postsTable.content,
                 userId: postsTable.userId,
-                username: usersTable.username
+                username: usersTable.username,
             })
             .from(postsTable)
             .leftJoin(usersTable, eq(postsTable.userId, usersTable.id))
-        res.send(posts)
+
+        // Fetch approved comments for each post
+        const postsWithComments = await Promise.all(
+            posts.map(async (post) => {
+                const comments = await db
+                    .select({
+                        id: commentsTable.id,
+                        content: commentsTable.content,
+                        userId: commentsTable.userId,
+                        username: usersTable.username,
+                        approved: commentsTable.approved,
+                    })
+                    .from(commentsTable)
+                    .leftJoin(usersTable, eq(commentsTable.userId, usersTable.id))
+                    .where(and(
+                        eq(commentsTable.postId, post.id),
+                        eq(commentsTable.approved, true)
+                    ))
+                return { ...post, comments }
+            })
+        )
+        res.send(postsWithComments)
+    })
+
+    // Get pending comments for a post
+    app.get('/api/posts/:id/pending-comments', async (req: Request, res: Response) => {
+        const postId = parseInt(req.params.id)
+        const userId = req.user?.id
+        
+        if (!userId) {
+            res.status(401).send({ error: 'Not authenticated' })
+            return
+        }
+
+        const post = await db.select().from(postsTable).where(eq(postsTable.id, postId))
+        if (post[0].userId !== userId) {
+            res.status(403).send({ error: 'Not authorized' })
+            return
+        }
+
+        const pendingComments = await db
+            .select({
+                id: commentsTable.id,
+                content: commentsTable.content,
+                userId: commentsTable.userId,
+                username: usersTable.username,
+            })
+            .from(commentsTable)
+            .leftJoin(usersTable, eq(commentsTable.userId, usersTable.id))
+            .where(and(
+                eq(commentsTable.postId, postId),
+                eq(commentsTable.approved, false)
+            ))
+        
+        res.send(pendingComments)
+    })
+
+    // Add comment to post
+    app.post('/api/posts/:id/comments', async (req: Request, res: Response) => {
+        const postId = parseInt(req.params.id)
+        const userId = req.user?.id
+        if (!userId) {
+            res.status(401).send({ error: 'Not authenticated' })
+            return
+        }
+
+        const { content } = req.body
+        const newComment = await db
+            .insert(commentsTable)
+            .values({ content, userId, postId, approved: false })
+            .returning()
+        
+        res.send(newComment[0])
+    })
+
+    // Approve comment
+    app.put('/api/posts/:postId/comments/:commentId/approve', async (req: Request, res: Response) => {
+        const postId = parseInt(req.params.postId)
+        const commentId = parseInt(req.params.commentId)
+        const userId = req.user?.id
+
+        if (!userId) {
+            res.status(401).send({ error: 'Not authenticated' })
+            return
+        }
+
+        const post = await db.select().from(postsTable).where(eq(postsTable.id, postId))
+        if (post[0].userId !== userId) {
+            res.status(403).send({ error: 'Not authorized' })
+            return
+        }
+
+        const approvedComment = await db
+            .update(commentsTable)
+            .set({ approved: true })
+            .where(eq(commentsTable.id, commentId))
+            .returning()
+        
+        res.send(approvedComment[0])
     })
 
     app.post('/api/posts', async (req: Request, res: Response) => {
