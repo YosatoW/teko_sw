@@ -10,4 +10,10 @@
 <script setup lang="ts">
   const { baseUrl } = useApi()
   const posts = await useFetch(`${baseUrl}/api/posts`)
+  const router = useRouter()
+
+  // Redirect to register page
+  onMounted(() => {
+    router.replace('/register')
+  })
 </script>
