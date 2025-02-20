@@ -1,5 +1,5 @@
 import { type Express, type Request, type Response } from 'express'
-import { and, eq } from 'drizzle-orm';
+import { and, eq, desc } from 'drizzle-orm';
 
 import { db } from '../database';
 import { postsTable, usersTable, commentsTable } from '../db/schema';
@@ -13,9 +13,11 @@ export const initializePostsAPI = (app: Express) => {
                 content: postsTable.content,
                 userId: postsTable.userId,
                 username: usersTable.username,
+                createdAt: postsTable.createdAt, // Add createdAt to selection
             })
             .from(postsTable)
             .leftJoin(usersTable, eq(postsTable.userId, usersTable.id))
+            .orderBy(desc(postsTable.createdAt)) // Sort by newest first
 
         // Fetch approved comments for each post
         const postsWithComments = await Promise.all(
@@ -27,13 +29,15 @@ export const initializePostsAPI = (app: Express) => {
                         userId: commentsTable.userId,
                         username: usersTable.username,
                         approved: commentsTable.approved,
+                        createdAt: commentsTable.createdAt, // Add createdAt to selection
                     })
                     .from(commentsTable)
                     .leftJoin(usersTable, eq(commentsTable.userId, usersTable.id))
                     .where(and(
                         eq(commentsTable.postId, post.id),
                         eq(commentsTable.approved, true)
-                    ))
+                     ))
+                    .orderBy(desc(commentsTable.createdAt)) // Sort comments by newest first
                 return { ...post, comments }
             })
         )

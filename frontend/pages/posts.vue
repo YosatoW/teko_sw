@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto p-4">
+  <div class="container mx-auto p-4 mt-16"> <!-- Added mt-16 for header space -->
     <!-- Create new post section -->
     <div class="mb-8 p-4 border rounded-lg bg-white">
       <h2 class="text-xl font-bold mb-4">Create New Post</h2>
@@ -360,8 +360,23 @@ const deleteComment = async (postId: number, commentId: number) => {
 
 // Format date
 const formatDate = (date: string) => {
-  return new Date(date).toLocaleString()
+  try {
+    return new Date(date).toLocaleString('de-CH', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  } catch (e) {
+    return 'Invalid date'
+  }
 }
+
+// Ensure fresh data on component mount
+onMounted(() => {
+  refresh()
+})
 
 // Fetch pending comments when a post is loaded
 watch(() => posts.value, async (newPosts) => {

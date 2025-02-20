@@ -1,5 +1,5 @@
 <template>
-  <header class="bg-blue-500 text-white">
+  <header class="fixed top-0 left-0 right-0 bg-blue-500 text-white z-10">
     <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
       <h1 class="text-2xl">Minitwitter</h1>
       <div v-if="currentUser" class="flex items-center gap-4">
