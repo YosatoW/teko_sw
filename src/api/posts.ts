@@ -1,16 +1,23 @@
 import { type Express, type Request, type Response } from 'express'
-import {and, eq} from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
-import {db} from '../database';
-import {postsTable} from '../db/schema';
-
+import { db } from '../database';
+import { postsTable, usersTable } from '../db/schema';
 
 export const initializePostsAPI = (app: Express) => {
     app.get('/api/posts', async (req: Request, res: Response) => {
-        const posts = await db.select().from(postsTable)
+        const posts = await db
+            .select({
+                id: postsTable.id,
+                content: postsTable.content,
+                userId: postsTable.userId,
+                username: usersTable.username
+            })
+            .from(postsTable)
+            .leftJoin(usersTable, eq(postsTable.userId, usersTable.id))
         res.send(posts)
-      })
-    
+    })
+
     app.post('/api/posts', async (req: Request, res: Response) => {
         const userId = req.user?.id // Versucht die ID des auth-User aus dem "req.user" zu extrahieren.
         if (!userId) {

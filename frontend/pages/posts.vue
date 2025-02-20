@@ -50,7 +50,7 @@
         <div v-else>
           <p class="text-gray-800">{{ post.content }}</p>
           <div class="mt-2 flex justify-between items-center">
-            <p class="text-sm text-gray-500">Posted by: {{ post.userId }}</p>
+            <p class="text-sm text-gray-500">Posted by: {{ post.username }}</p>
             <div v-if="post.userId === currentUserId" class="flex gap-2">
               <button
                 @click="startEdit(post)"
