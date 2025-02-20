@@ -50,7 +50,10 @@
         <div v-else>
           <p class="text-gray-800">{{ post.content }}</p>
           <div class="mt-2 flex justify-between items-center">
-            <p class="text-sm text-gray-500">Posted by: {{ post.username }}</p>
+            <div class="text-sm text-gray-500">
+              <p>Posted by: {{ post.username }}</p>
+              <p>{{ formatDate(post.createdAt) }}</p>
+            </div>
             <div v-if="post.userId === currentUserId" class="flex gap-2">
               <button
                 @click="startEdit(post)"
@@ -92,8 +95,50 @@
           <!-- Approved comments -->
           <div v-if="post.comments?.length" class="space-y-2">
             <div v-for="comment in post.comments" :key="comment.id" class="ml-4 p-2 bg-gray-50 rounded">
-              <p class="text-sm">{{ comment.content }}</p>
-              <span class="text-xs text-gray-500">By: {{ comment.username }}</span>
+              <div v-if="editingComment?.id === comment.id">
+                <input
+                  v-model="editingComment.content"
+                  type="text"
+                  class="w-full p-2 border rounded mb-2"
+                />
+                <div class="flex gap-2">
+                  <button
+                    @click="updateComment(post.id, comment.id)"
+                    class="text-xs bg-green-500 text-white px-2 py-1 rounded"
+                  >
+                    Save
+                  </button>
+                  <button
+                    @click="cancelCommentEdit"
+                    class="text-xs bg-gray-500 text-white px-2 py-1 rounded"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+              <div v-else>
+                <p class="text-sm">{{ comment.content }}</p>
+                <div class="flex justify-between items-center mt-1">
+                  <div class="text-xs text-gray-500">
+                    <p>By: {{ comment.username }}</p>
+                    <p>{{ formatDate(comment.createdAt) }}</p>
+                  </div>
+                  <div v-if="comment.userId === currentUserId" class="flex gap-2">
+                    <button
+                      @click="startCommentEdit(comment)"
+                      class="text-xs text-blue-500 hover:text-blue-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      @click="deleteComment(post.id, comment.id)"
+                      class="text-xs text-red-500 hover:text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -134,6 +179,7 @@ const currentUserId = computed(() => {
 
 const newComments = ref<Record<number, string>>({})
 const pendingComments = ref<Record<number, any[]>>({})
+const editingComment = ref<{ id: number; content: string } | null>(null)
 
 // Fetch posts
 const { pending, data: posts, error, refresh } = await useFetch(`${baseUrl}/api/posts`, {
@@ -208,18 +254,23 @@ const updatePost = async (id: number) => {
   }
 }
 
-// Delete post
+// Delete post with confirmation
 const deletePost = async (id: number) => {
   if (!confirm('Are you sure you want to delete this post?')) return
   
   try {
-    await fetch(`${baseUrl}/api/posts/${id}`, {
+    const response = await fetch(`${baseUrl}/api/posts/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
     })
-    refresh()
+    
+    if (response.ok) {
+      await refresh()
+    } else {
+      console.error('Failed to delete post')
+    }
   } catch (e) {
     console.error('Error deleting post:', e)
   }
@@ -257,6 +308,59 @@ const approveComment = async (postId: number, commentId: number) => {
   } catch (e) {
     console.error('Error approving comment:', e)
   }
+}
+
+// Start editing comment
+const startCommentEdit = (comment: any) => {
+  editingComment.value = {
+    id: comment.id,
+    content: comment.content
+  }
+}
+
+// Cancel comment editing
+const cancelCommentEdit = () => {
+  editingComment.value = null
+}
+
+// Update comment
+const updateComment = async (postId: number, commentId: number) => {
+  try {
+    await fetch(`${baseUrl}/api/posts/${postId}/comments/${commentId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: editingComment.value?.content }),
+    })
+    editingComment.value = null
+    refresh()
+  } catch (e) {
+    console.error('Error updating comment:', e)
+  }
+}
+
+// Delete comment
+const deleteComment = async (postId: number, commentId: number) => {
+  if (!confirm('Are you sure you want to delete this comment?')) return
+  
+  try {
+    await fetch(`${baseUrl}/api/posts/${postId}/comments/${commentId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+    })
+    refresh()
+  } catch (e) {
+    console.error('Error deleting comment:', e)
+  }
+}
+
+// Format date
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleString()
 }
 
 // Fetch pending comments when a post is loaded

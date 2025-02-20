@@ -83,12 +83,64 @@ export const initializePostsAPI = (app: Express) => {
         }
 
         const { content } = req.body
+        const post = await db.select().from(postsTable).where(eq(postsTable.id, postId))
+        
+        // Auto-approve if comment is from post owner
+        const isPostOwner = post[0].userId === userId
+        
         const newComment = await db
             .insert(commentsTable)
-            .values({ content, userId, postId, approved: false })
+            .values({ 
+                content, 
+                userId, 
+                postId, 
+                approved: isPostOwner 
+            })
             .returning()
         
         res.send(newComment[0])
+    })
+
+    // Update comment
+    app.put('/api/posts/:postId/comments/:commentId', async (req: Request, res: Response) => {
+        const commentId = parseInt(req.params.commentId)
+        const userId = req.user?.id
+
+        if (!userId) {
+            res.status(401).send({ error: 'Not authenticated' })
+            return
+        }
+
+        const updatedComment = await db
+            .update(commentsTable)
+            .set({ content: req.body.content })
+            .where(and(
+                eq(commentsTable.id, commentId),
+                eq(commentsTable.userId, userId)
+            ))
+            .returning()
+        
+        res.send(updatedComment[0])
+    })
+
+    // Delete comment
+    app.delete('/api/posts/:postId/comments/:commentId', async (req: Request, res: Response) => {
+        const commentId = parseInt(req.params.commentId)
+        const userId = req.user?.id
+
+        if (!userId) {
+            res.status(401).send({ error: 'Not authenticated' })
+            return
+        }
+
+        await db
+            .delete(commentsTable)
+            .where(and(
+                eq(commentsTable.id, commentId),
+                eq(commentsTable.userId, userId)
+            ))
+        
+        res.send({ id: commentId })
     })
 
     // Approve comment

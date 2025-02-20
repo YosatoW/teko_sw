@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, varchar, timestamp } from "drizzle-orm/pg-core";
 
 export const postsTable = pgTable("posts", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -6,6 +6,7 @@ export const postsTable = pgTable("posts", {
   userId: integer()
   .notNull()
   .references(() => usersTable.id, {onDelete: 'cascade'}),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
 export const usersTable = pgTable('users', {
@@ -24,4 +25,5 @@ export const commentsTable = pgTable("comments", {
     .notNull()
     .references(() => postsTable.id, { onDelete: 'cascade' }),
   approved: boolean().default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 })

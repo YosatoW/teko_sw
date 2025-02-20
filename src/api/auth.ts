@@ -41,4 +41,37 @@ export const initializeAuthAPI = (app: Express) => {
             res.send(token)            
         }
     }) 
+
+    app.put('/api/auth/change-password', async (req: Request, res: Response) => {
+        const userId = req.user?.id
+        if (!userId) {
+            res.status(401).send({ error: 'Not authenticated' })
+            return
+        }
+
+        const { currentPassword, newPassword } = req.body
+        
+        // Get user
+        const user = await db.select().from(usersTable).where(eq(usersTable.id, userId))
+        if (!user.length) {
+            res.status(404).send({ error: 'User not found' })
+            return
+        }
+
+        // Verify current password
+        const passwordMatch = await bcrypt.compare(currentPassword, user[0].password)
+        if (!passwordMatch) {
+            res.status(401).send({ error: 'Current password is incorrect' })
+            return
+        }
+
+        // Hash and update new password
+        const newPasswordHash = await bcrypt.hash(newPassword, 10)
+        await db
+            .update(usersTable)
+            .set({ password: newPasswordHash })
+            .where(eq(usersTable.id, userId))
+
+        res.send({ message: 'Password updated successfully' })
+    })
 }
