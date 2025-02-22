@@ -3,9 +3,9 @@ import { boolean, integer, pgTable, varchar, timestamp } from "drizzle-orm/pg-co
 export const postsTable = pgTable("posts", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   content: varchar({ length: 255 }).notNull(),
-  userId: integer()
-  .notNull()
-  .references(() => usersTable.id, {onDelete: 'cascade'}),
+  sentiment: varchar({ length: 80 }),
+  correction: varchar({ length: 255 }),
+  userId: integer().notNull().references(() => usersTable.id, {onDelete: 'cascade'}),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
