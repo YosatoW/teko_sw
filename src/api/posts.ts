@@ -5,7 +5,7 @@ import { db } from '../database';
 import { postsTable, usersTable, commentsTable } from '../db/schema';
 
 export const initializePostsAPI = (app: Express) => {
-    // Update get posts to include approved comments
+    // Update get posts to include all comments
     app.get('/api/posts', async (req: Request, res: Response) => {
         const posts = await db
             .select({
@@ -13,13 +13,13 @@ export const initializePostsAPI = (app: Express) => {
                 content: postsTable.content,
                 userId: postsTable.userId,
                 username: usersTable.username,
-                createdAt: postsTable.createdAt, // Add createdAt to selection
+                createdAt: postsTable.createdAt,
             })
             .from(postsTable)
             .leftJoin(usersTable, eq(postsTable.userId, usersTable.id))
-            .orderBy(desc(postsTable.createdAt)) // Sort by newest first
+            .orderBy(desc(postsTable.createdAt))
 
-        // Fetch approved comments for each post
+        // Fetch all comments for each post (removed approval filter)
         const postsWithComments = await Promise.all(
             posts.map(async (post) => {
                 const comments = await db
@@ -28,56 +28,19 @@ export const initializePostsAPI = (app: Express) => {
                         content: commentsTable.content,
                         userId: commentsTable.userId,
                         username: usersTable.username,
-                        approved: commentsTable.approved,
-                        createdAt: commentsTable.createdAt, // Add createdAt to selection
+                        createdAt: commentsTable.createdAt,
                     })
                     .from(commentsTable)
                     .leftJoin(usersTable, eq(commentsTable.userId, usersTable.id))
-                    .where(and(
-                        eq(commentsTable.postId, post.id),
-                        eq(commentsTable.approved, true)
-                     ))
-                    .orderBy(desc(commentsTable.createdAt)) // Sort comments by newest first
+                    .where(eq(commentsTable.postId, post.id))
+                    .orderBy(desc(commentsTable.createdAt))
                 return { ...post, comments }
             })
         )
         res.send(postsWithComments)
     })
 
-    // Get pending comments for a post
-    app.get('/api/posts/:id/pending-comments', async (req: Request, res: Response) => {
-        const postId = parseInt(req.params.id)
-        const userId = req.user?.id
-        
-        if (!userId) {
-            res.status(401).send({ error: 'Not authenticated' })
-            return
-        }
-
-        const post = await db.select().from(postsTable).where(eq(postsTable.id, postId))
-        if (post[0].userId !== userId) {
-            res.status(403).send({ error: 'Not authorized' })
-            return
-        }
-
-        const pendingComments = await db
-            .select({
-                id: commentsTable.id,
-                content: commentsTable.content,
-                userId: commentsTable.userId,
-                username: usersTable.username,
-            })
-            .from(commentsTable)
-            .leftJoin(usersTable, eq(commentsTable.userId, usersTable.id))
-            .where(and(
-                eq(commentsTable.postId, postId),
-                eq(commentsTable.approved, false)
-            ))
-        
-        res.send(pendingComments)
-    })
-
-    // Add comment to post
+    // Add comment to post (simplified - removed approval logic)
     app.post('/api/posts/:id/comments', async (req: Request, res: Response) => {
         const postId = parseInt(req.params.id)
         const userId = req.user?.id
@@ -87,25 +50,19 @@ export const initializePostsAPI = (app: Express) => {
         }
 
         const { content } = req.body
-        const post = await db.select().from(postsTable).where(eq(postsTable.id, postId))
-        
-        // Auto-approve if comment is from post owner
-        const isPostOwner = post[0].userId === userId
-        
         const newComment = await db
             .insert(commentsTable)
             .values({ 
                 content, 
                 userId, 
-                postId, 
-                approved: isPostOwner 
+                postId
             })
             .returning()
         
         res.send(newComment[0])
     })
 
-    // Update comment
+    // Keep existing CRUD operations for posts and comments...
     app.put('/api/posts/:postId/comments/:commentId', async (req: Request, res: Response) => {
         const commentId = parseInt(req.params.commentId)
         const userId = req.user?.id
@@ -127,7 +84,6 @@ export const initializePostsAPI = (app: Express) => {
         res.send(updatedComment[0])
     })
 
-    // Delete comment
     app.delete('/api/posts/:postId/comments/:commentId', async (req: Request, res: Response) => {
         const commentId = parseInt(req.params.commentId)
         const userId = req.user?.id
@@ -145,32 +101,6 @@ export const initializePostsAPI = (app: Express) => {
             ))
         
         res.send({ id: commentId })
-    })
-
-    // Approve comment
-    app.put('/api/posts/:postId/comments/:commentId/approve', async (req: Request, res: Response) => {
-        const postId = parseInt(req.params.postId)
-        const commentId = parseInt(req.params.commentId)
-        const userId = req.user?.id
-
-        if (!userId) {
-            res.status(401).send({ error: 'Not authenticated' })
-            return
-        }
-
-        const post = await db.select().from(postsTable).where(eq(postsTable.id, postId))
-        if (post[0].userId !== userId) {
-            res.status(403).send({ error: 'Not authorized' })
-            return
-        }
-
-        const approvedComment = await db
-            .update(commentsTable)
-            .set({ approved: true })
-            .where(eq(commentsTable.id, commentId))
-            .returning()
-        
-        res.send(approvedComment[0])
     })
 
     app.post('/api/posts', async (req: Request, res: Response) => {

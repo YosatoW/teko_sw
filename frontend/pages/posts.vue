@@ -71,28 +71,13 @@
           </div>
         </div>
 
-        <!-- Comments section -->
+        <!-- Comments section - Debug info added -->
         <div class="mt-4 border-t pt-4">
-          <h3 class="text-lg font-semibold mb-2">Comments</h3>
-          
-          <!-- Pending comments (visible only to post owner) -->
-          <div v-if="post.userId === currentUserId && pendingComments[post.id]?.length" class="mb-4">
-            <h4 class="text-sm font-semibold text-orange-500 mb-2">Pending Comments</h4>
-            <div v-for="comment in pendingComments[post.id]" :key="comment.id" class="ml-4 mb-2 p-2 bg-gray-50 rounded">
-              <p class="text-sm">{{ comment.content }}</p>
-              <div class="flex justify-between items-center mt-1">
-                <span class="text-xs text-gray-500">By: {{ comment.username }}</span>
-                <button 
-                  @click="approveComment(post.id, comment.id)" 
-                  class="text-xs bg-green-500 text-white px-2 py-1 rounded"
-                >
-                  Approve
-                </button>
-              </div>
-            </div>
-          </div>
+          <h3 class="text-lg font-semibold mb-2">
+            Comments
+          </h3>
 
-          <!-- Approved comments -->
+          <!-- Comments list -->
           <div v-if="post.comments?.length" class="space-y-2">
             <div v-for="comment in post.comments" :key="comment.id" class="ml-4 p-2 bg-gray-50 rounded">
               <div v-if="editingComment?.id === comment.id">
@@ -142,13 +127,13 @@
             </div>
           </div>
 
-          <!-- Add comment -->
+          <!-- Add comment form - Explicitly allow for all posts -->
           <form @submit.prevent="addComment(post.id)" class="mt-4">
             <div class="flex gap-2">
               <input
                 v-model="newComments[post.id]"
                 type="text"
-                placeholder="Add a comment..."
+                :placeholder="'Add a comment to post ' + post.id"
                 class="flex-1 p-2 border rounded"
                 required
               />
@@ -178,32 +163,21 @@ const currentUserId = computed(() => {
 })
 
 const newComments = ref<Record<number, string>>({})
-const pendingComments = ref<Record<number, any[]>>({})
 const editingComment = ref<{ id: number; content: string } | null>(null)
 
 // Fetch posts
-const { pending, data: posts, error, refresh } = await useFetch(`${baseUrl}/api/posts`, {
+const { pending, data: posts, error, refresh } = await useFetch<Array<{
+  id: number
+  userId: number
+  content: string
+  username: string
+  createdAt: string
+  comments: Array<any>
+}>>(`${baseUrl}/api/posts`, {
   headers: {
     'Authorization': `Bearer ${localStorage.getItem('token')}`
   }
 })
-
-// Fetch pending comments for user's posts
-const fetchPendingComments = async (postId: number) => {
-  try {
-    const response = await fetch(`${baseUrl}/api/posts/${postId}/pending-comments`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-    if (response.ok) {
-      const comments = await response.json()
-      pendingComments.value[postId] = comments
-    }
-  } catch (e) {
-    console.error('Error fetching pending comments:', e)
-  }
-}
 
 // Create new post
 const createPost = async () => {
@@ -276,10 +250,11 @@ const deletePost = async (id: number) => {
   }
 }
 
-// Add comment
+// Add comment with debug logging
 const addComment = async (postId: number) => {
+  console.log('Attempting to add comment to post:', postId)
   try {
-    await fetch(`${baseUrl}/api/posts/${postId}/comments`, {
+    const response = await fetch(`${baseUrl}/api/posts/${postId}/comments`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -287,26 +262,19 @@ const addComment = async (postId: number) => {
       },
       body: JSON.stringify({ content: newComments.value[postId] }),
     })
+    
+    if (!response.ok) {
+      const error = await response.text()
+      console.error('Error response:', error)
+      throw new Error(`Failed to add comment: ${error}`)
+    }
+
+    console.log('Comment added successfully')
     newComments.value[postId] = ''
     refresh()
   } catch (e) {
     console.error('Error adding comment:', e)
-  }
-}
-
-// Approve comment
-const approveComment = async (postId: number, commentId: number) => {
-  try {
-    await fetch(`${baseUrl}/api/posts/${postId}/comments/${commentId}/approve`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
-    })
-    await fetchPendingComments(postId)
-    refresh()
-  } catch (e) {
-    console.error('Error approving comment:', e)
+    alert('Failed to add comment. Please try again.')
   }
 }
 
@@ -377,15 +345,4 @@ const formatDate = (date: string) => {
 onMounted(() => {
   refresh()
 })
-
-// Fetch pending comments when a post is loaded
-watch(() => posts.value, async (newPosts) => {
-  if (newPosts) {
-    for (const post of newPosts) {
-      if (post.userId === currentUserId.value) {
-        await fetchPendingComments(post.id)
-      }
-    }
-  }
-}, { immediate: true })
 </script>
