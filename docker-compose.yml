@@ -62,8 +62,16 @@ services:
 
   redis:
     image: redis/redis-stack:latest
+<<<<<<< HEAD
     ports:
     - 6379:6379 # Redis-Port
     - 8001:8001 # Redits Webinterface
+=======
+    container_name: redis
+    restart: always
+    ports:
+      - 6379:6379 # Redis-Port
+      - 8001:8001 # Redits Webinterface
+>>>>>>> le10
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]

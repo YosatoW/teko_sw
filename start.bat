@@ -1,6 +1,6 @@
 @echo off
 REM Start Docker
-docker compose up --build -d
+docker compose up -d
 timeout /t 2
 
 REM Start Backend in new terminal
