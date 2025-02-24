@@ -3,16 +3,10 @@ import { boolean, integer, pgTable, varchar, timestamp } from "drizzle-orm/pg-co
 export const postsTable = pgTable("posts", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   content: varchar({ length: 255 }).notNull(),
-<<<<<<< HEAD
-  userId: integer().notNull().references(() => usersTable.id, {onDelete: 'cascade'}),
-  sentiment: varchar('sentiment'),  // Neues Feld
-  correction: varchar('correction'), // Neues Feld
-=======
   sentiment: varchar({ length: 80 }),
   correction: varchar({ length: 255 }),
   userId: integer().notNull().references(() => usersTable.id, {onDelete: 'cascade'}),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
->>>>>>> le10
+
 })
 
 
