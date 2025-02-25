@@ -24,6 +24,8 @@ export const commentsTable = pgTable("comments", {
   postId: integer()
     .notNull()
     .references(() => postsTable.id, { onDelete: 'cascade' }),
+  sentiment: varchar({ length: 80 }),
+  correction: varchar({ length: 255 }),
   approved: boolean().default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })

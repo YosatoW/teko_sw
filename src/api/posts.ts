@@ -3,6 +3,7 @@ import { and, eq, desc, asc, sql } from 'drizzle-orm';
 
 import { db } from '../database';
 import { postsTable, usersTable, commentsTable, likesTable } from '../db/schema';
+import { sentimentQueue, commentSentimentQueue } from '../message-broker'
 
 export const initializePostsAPI = (app: Express) => {
     // Update get posts to include all comments
@@ -64,16 +65,33 @@ export const initializePostsAPI = (app: Express) => {
         }
 
         const { content } = req.body
-        const newComment = await db
-            .insert(commentsTable)
-            .values({ 
-                content, 
-                userId, 
-                postId
+
+        try {
+            const newComment = await db
+                .insert(commentsTable)
+                .values({ 
+                    content, 
+                    userId, 
+                    postId
+                })
+                .returning()
+
+            // Create sentiment analysis job for new comment
+            await commentSentimentQueue.add('analyze', {
+                commentId: newComment[0].id
+            }, {
+                attempts: 3,
+                backoff: {
+                    type: 'exponential',
+                    delay: 1000
+                }
             })
-            .returning()
-        
-        res.send(newComment[0])
+            
+            res.send(newComment[0])
+        } catch (error) {
+            console.error('Error creating comment:', error)
+            res.status(500).send({ error: 'Failed to create comment' })
+        }
     })
 
     // Update like/dislike endpoint
@@ -190,16 +208,32 @@ export const initializePostsAPI = (app: Express) => {
             return
         }
 
-        const updatedComment = await db
-            .update(commentsTable)
-            .set({ content: req.body.content })
-            .where(and(
-                eq(commentsTable.id, commentId),
-                eq(commentsTable.userId, userId)
-            ))
-            .returning()
-        
-        res.send(updatedComment[0])
+        try {
+            const updatedComment = await db
+                .update(commentsTable)
+                .set({ content: req.body.content })
+                .where(and(
+                    eq(commentsTable.id, commentId),
+                    eq(commentsTable.userId, userId)
+                ))
+                .returning()
+
+            // Create new sentiment analysis job for updated comment
+            await commentSentimentQueue.add('analyze', {
+                commentId: commentId
+            }, {
+                attempts: 3,
+                backoff: {
+                    type: 'exponential',
+                    delay: 1000
+                }
+            })
+            
+            res.send(updatedComment[0])
+        } catch (error) {
+            console.error('Error updating comment:', error)
+            res.status(500).send({ error: 'Failed to update comment' })
+        }
     })
 
     app.delete('/api/posts/:postId/comments/:commentId', async (req: Request, res: Response) => {
@@ -229,8 +263,25 @@ export const initializePostsAPI = (app: Express) => {
         }
         // der content aus dem req.body extrahiert. Dies ist der Inhalt des neuen Beitrags in der Datenbank.
         const { content } = req.body
-        const newPost = await db.insert(postsTable).values({ content, userId }).returning()
-        res.send(newPost[0])
+        try {
+            const newPost = await db.insert(postsTable).values({ content, userId }).returning()
+            
+            // Create sentiment analysis job
+            await sentimentQueue.add('analyze', {
+                postId: newPost[0].id
+            }, {
+                attempts: 3,
+                backoff: {
+                    type: 'exponential',
+                    delay: 1000
+                }
+            })
+
+            res.send(newPost[0])
+        } catch (error) {
+            console.error('Error creating post:', error)
+            res.status(500).send({ error: 'Failed to create post' })
+        }
     })
     
     app.put('/api/posts/:id', async (req: Request, res: Response) => {
@@ -240,8 +291,25 @@ export const initializePostsAPI = (app: Express) => {
             res.status(401).send({ error: 'Nicht authentifiziert' })
             return
         }
-        const updatedPost = await db.update(postsTable).set(req.body).where(and(eq(postsTable.id, id), eq(postsTable.userId, userId))).returning()
-        res.send(updatedPost[0])
+        try {
+            const updatedPost = await db.update(postsTable).set(req.body).where(and(eq(postsTable.id, id), eq(postsTable.userId, userId))).returning()
+
+            // Create new sentiment analysis job for updated content
+            await sentimentQueue.add('analyze', {
+                postId: id
+            }, {
+                attempts: 3,
+                backoff: {
+                    type: 'exponential',
+                    delay: 1000
+                }
+            })
+
+            res.send(updatedPost[0])
+        } catch (error) {
+            console.error('Error updating post:', error)
+            res.status(500).send({ error: 'Failed to update post' })
+        }
     })
     
     app.delete('/api/posts/:id', async (req: Request, res: Response) => {
