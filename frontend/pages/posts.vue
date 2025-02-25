@@ -152,6 +152,34 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  middleware: ['auth']
+})
+
+const router = useRouter()
+
+// Check authentication
+const checkAuth = () => {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    router.push('/login')
+    return false
+  }
+  return true
+}
+
+// Add authentication checks
+onMounted(() => {
+  if (!checkAuth()) return
+})
+
+// Watch for token removal
+watch(() => localStorage.getItem('token'), (newToken) => {
+  if (!newToken) {
+    router.push('/login')
+  }
+})
+
 const { baseUrl } = useApi()
 const newPostContent = ref('')
 const editingPost = ref<{ id: number; content: string } | null>(null)
@@ -240,13 +268,20 @@ const deletePost = async (id: number) => {
       },
     })
     
-    if (response.ok) {
-      await refresh()
-    } else {
-      console.error('Failed to delete post')
+    if (!response.ok) {
+      throw new Error('Failed to delete post')
     }
+
+    // Remove post from local state immediately
+    if (posts.value) {
+      posts.value = posts.value.filter(post => post.id !== id)
+    }
+    
+    // Refresh data from server
+    await refresh()
   } catch (e) {
     console.error('Error deleting post:', e)
+    alert('Failed to delete post. Please try again.')
   }
 }
 

@@ -126,14 +126,22 @@ export const initializePostsAPI = (app: Express) => {
         res.send(updatedPost[0])
     })
     
-    app.delete('/api/posts/:id', (req: Request, res: Response) => {
+    app.delete('/api/posts/:id', async (req: Request, res: Response) => {
         const id = parseInt(req.params.id)
         const userId = req.user?.id
         if (!userId) {
             res.status(401).send({ error: 'Nicht authentifiziert' })
             return
         }
-        db.delete(postsTable).where(and(eq(postsTable.id, id), eq(postsTable.userId, userId))).execute()
-        res.send({ id })
+        
+        try {
+            await db.delete(postsTable)
+                .where(and(eq(postsTable.id, id), eq(postsTable.userId, userId)))
+                .execute()
+            res.status(200).send({ id })
+        } catch (error) {
+            console.error('Error deleting post:', error)
+            res.status(500).send({ error: 'Failed to delete post' })
+        }
     })
 }
