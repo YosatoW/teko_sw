@@ -83,6 +83,18 @@ export const initializePostsAPI = (app: Express) => {
         const { postId, value } = req.body // value: 1 for like, -1 for dislike, 0 to remove
 
         try {
+            // Check if user is trying to like their own post
+            const post = await db
+                .select()
+                .from(postsTable)
+                .where(eq(postsTable.id, postId))
+                .limit(1)
+
+            if (!post.length || post[0].userId === userId) {
+                res.status(400).send({ error: 'Cannot like your own post' })
+                return
+            }
+
             // Remove existing like/dislike
             await db.delete(likesTable)
                 .where(and(

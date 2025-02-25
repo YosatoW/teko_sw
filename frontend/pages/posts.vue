@@ -56,28 +56,43 @@
             </div>
             <!-- Action buttons column -->
             <div class="flex flex-col gap-2">
-              <!-- Like/Dislike buttons -->
-              <div class="flex gap-2 items-center">
+              <!-- Like/Dislike buttons - Only show for other users' posts -->
+              <div v-if="post.userId !== currentUserId" class="flex gap-2 items-center">
                 <button 
                   @click="handleLike(post.id, 1)"
-                  class="px-3 py-1.5 rounded bg-gray-50 hover:bg-gray-100"
-                  :class="{ 'text-blue-500': post.userLikeValue === 1 }"
+                  class="px-3 py-1.5 rounded transition-colors"
+                  :class="{ 
+                    'bg-blue-100 text-blue-600': post.userLikeValue === 1,
+                    'bg-gray-50 hover:bg-gray-100': post.userLikeValue !== 1
+                  }"
                 >
                   👍
                 </button>
                 <span class="font-medium" :class="{
-                  'text-blue-500': post.likeCount > 0,
-                  'text-red-500': post.likeCount < 0
+                  'text-blue-600': post.likeCount > 0,
+                  'text-red-600': post.likeCount < 0
                 }">
                   {{ post.likeCount }}
                 </span>
                 <button 
                   @click="handleLike(post.id, -1)"
-                  class="px-3 py-1.5 rounded bg-gray-50 hover:bg-gray-100"
-                  :class="{ 'text-red-500': post.userLikeValue === -1 }"
+                  class="px-3 py-1.5 rounded transition-colors"
+                  :class="{ 
+                    'bg-red-100 text-red-600': post.userLikeValue === -1,
+                    'bg-gray-50 hover:bg-gray-100': post.userLikeValue !== -1
+                  }"
                 >
                   👎
                 </button>
+              </div>
+              <!-- Show just the count for own posts -->
+              <div v-else class="text-center">
+                <span class="font-medium" :class="{
+                  'text-blue-500': post.likeCount > 0,
+                  'text-red-500': post.likeCount < 0
+                }">
+                  Rating: {{ post.likeCount }}
+                </span>
               </div>
               <!-- Edit/Delete buttons -->
               <div v-if="post.userId === currentUserId" class="flex gap-2">
@@ -425,6 +440,11 @@ const handleLike = async (postId: number, value: number) => {
   const post = posts.value.find(p => p.id === postId)
   if (!post) return
 
+  // Don't allow liking own posts
+  if (post.userId === currentUserId.value) {
+    return
+  }
+
   // Get current user's like value
   const currentValue = post.userLikeValue || 0
 
@@ -442,7 +462,11 @@ const handleLike = async (postId: number, value: number) => {
     })
 
     if (!response.ok) {
-      throw new Error('Failed to update like')
+      const error = await response.json()
+      if (error.message) {
+        alert(error.message)
+      }
+      return
     }
 
     // Update local state
