@@ -117,28 +117,55 @@
           <!-- Post content -->
           <p class="text-gray-800 whitespace-pre-wrap">{{ post.content }}</p>
 
-          <!-- Comment toggle button -->
-          <div class="mt-4 border-t pt-4">
+          <!-- Comment buttons section -->
+          <div class="mt-4 border-t pt-4 flex gap-4">
+            <!-- Direct Add Comment button -->
+            <button
+              @click="toggleQuickComment(post.id)"
+              class="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1"
+            >
+              <span>Add Comment</span>
+              <span class="text-xs" v-if="showQuickComment[post.id]">▼</span>
+              <span class="text-xs" v-else>▶</span>
+            </button>
+
+            <!-- View Comments toggle button -->
             <button
               @click="toggleComments(post.id)"
-              class="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              class="text-gray-600 hover:text-gray-900 text-sm font-medium flex items-center gap-1"
             >
-              <span class="text-sm font-medium">
-                Comments ({{ post.comments?.length || 0 }})
-              </span>
+              <span>View Comments ({{ post.comments?.length || 0 }})</span>
               <span class="text-xs" v-if="showComments[post.id]">▼</span>
               <span class="text-xs" v-else>▶</span>
             </button>
           </div>
 
+          <!-- Quick Comment form -->
+          <div v-if="showQuickComment[post.id] && !showComments[post.id]" class="mt-4">
+            <form @submit.prevent="addComment(post.id)" class="space-y-2">
+              <textarea
+                v-model="newComments[post.id]"
+                rows="2"
+                placeholder="Write your comment..."
+                class="w-full p-2 border rounded-lg resize-none"
+                required
+              ></textarea>
+              <div class="flex justify-end">
+                <button
+                  type="submit"
+                  class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                >
+                  Post Comment
+                </button>
+              </div>
+            </form>
+          </div>
+
           <!-- Comments section -->
           <div v-if="showComments[post.id]" class="mt-4">
-            <!-- Comments section -->
             <div class="mt-4 border-t pt-4">
-              <h3 class="text-lg font-semibold mb-2">
-                Comments
-              </h3>
-
+              <h3 class="text-lg font-semibold mb-2">Comments</h3>
+              
               <!-- Comments list -->
               <div v-if="post.comments?.length" class="space-y-4">
                 <div v-for="comment in post.comments" :key="comment.id" class="p-4 border rounded-lg bg-white">
@@ -233,13 +260,27 @@
                 </div>
               </div>
 
+              <!-- Add comment button -->
+              <button
+                @click="toggleAddComment(post.id)"
+                class="mt-4 text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-2"
+              >
+                <span>Add a comment</span>
+                <span class="text-xs" v-if="showAddComment[post.id]">▼</span>
+                <span class="text-xs" v-else>▶</span>
+              </button>
+
               <!-- Add comment form -->
-              <form @submit.prevent="addComment(post.id)" class="mt-4">
+              <form 
+                v-if="showAddComment[post.id]"
+                @submit.prevent="addComment(post.id)" 
+                class="mt-4"
+              >
                 <div class="space-y-2">
                   <textarea
                     v-model="newComments[post.id]"
                     rows="2"
-                    placeholder="Add a comment"
+                    placeholder="Write your comment..."
                     class="w-full p-2 border rounded-lg resize-none"
                     required
                   ></textarea>
@@ -247,7 +288,7 @@
                     type="submit"
                     class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
                   >
-                    Comment
+                    Post Comment
                   </button>
                 </div>
               </form>
@@ -304,9 +345,33 @@ const editingComment = ref<{ id: number; content: string } | null>(null)
 // Add reactive ref for tracking shown comments
 const showComments = ref<Record<number, boolean>>({})
 
+// Add reactive ref for tracking shown add comment forms
+const showAddComment = ref<Record<number, boolean>>({})
+
+// Add reactive ref for quick comment form
+const showQuickComment = ref<Record<number, boolean>>({})
+
 // Toggle comments visibility
 const toggleComments = (postId: number) => {
   showComments.value[postId] = !showComments.value[postId]
+  // Close quick comment if opening comments
+  if (showComments.value[postId]) {
+    showQuickComment.value[postId] = false
+  }
+}
+
+// Toggle add comment form visibility
+const toggleAddComment = (postId: number) => {
+  showAddComment.value[postId] = !showAddComment.value[postId]
+}
+
+// Toggle quick comment form
+const toggleQuickComment = (postId: number) => {
+  showQuickComment.value[postId] = !showQuickComment.value[postId]
+  // Close comments section if opening quick comment
+  if (showQuickComment.value[postId]) {
+    showComments.value[postId] = false
+  }
 }
 
 // Fetch posts
@@ -425,6 +490,9 @@ const addComment = async (postId: number) => {
 
     console.log('Comment added successfully')
     newComments.value[postId] = ''
+    // Reset and hide both forms after successful comment
+    showQuickComment.value[postId] = false
+    showAddComment.value[postId] = false
     refresh()
   } catch (e) {
     console.error('Error adding comment:', e)
