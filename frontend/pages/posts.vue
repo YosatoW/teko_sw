@@ -54,41 +54,42 @@
               <p class="font-medium text-gray-900">{{ post.username }}</p>
               <p class="text-sm text-gray-500">{{ formatDate(post.createdAt) }}</p>
             </div>
-            <div class="flex items-center gap-4">
+            <!-- Action buttons column -->
+            <div class="flex flex-col gap-2">
               <!-- Like/Dislike buttons -->
-              <div class="flex gap-2">
+              <div class="flex gap-2 items-center">
                 <button 
-                  @click="handleLike(post.id)"
-                  class="flex items-center gap-1 px-2 py-1 rounded"
-                  :class="{
-                    'bg-blue-100': post.userLike === true,
-                    'hover:bg-blue-50': post.userLike !== true
-                  }"
+                  @click="handleLike(post.id, 1)"
+                  class="px-3 py-1.5 rounded bg-gray-50 hover:bg-gray-100"
+                  :class="{ 'text-blue-500': post.userLikeValue === 1 }"
                 >
-                  <span>👍 {{ post.likes || 0 }}</span>
+                  👍
                 </button>
+                <span class="font-medium" :class="{
+                  'text-blue-500': post.likeCount > 0,
+                  'text-red-500': post.likeCount < 0
+                }">
+                  {{ post.likeCount }}
+                </span>
                 <button 
-                  @click="handleDislike(post.id)"
-                  class="flex items-center gap-1 px-2 py-1 rounded"
-                  :class="{
-                    'bg-red-100': post.userLike === false,
-                    'hover:bg-red-50': post.userLike !== false
-                  }"
+                  @click="handleLike(post.id, -1)"
+                  class="px-3 py-1.5 rounded bg-gray-50 hover:bg-gray-100"
+                  :class="{ 'text-red-500': post.userLikeValue === -1 }"
                 >
-                  <span>👎 {{ post.dislikes || 0 }}</span>
+                  👎
                 </button>
               </div>
               <!-- Edit/Delete buttons -->
               <div v-if="post.userId === currentUserId" class="flex gap-2">
                 <button
                   @click="startEdit(post)"
-                  class="text-blue-500 hover:text-blue-600"
+                  class="flex-1 px-3 py-1.5 rounded bg-gray-50 text-blue-500 hover:bg-gray-100"
                 >
                   Edit
                 </button>
                 <button
                   @click="deletePost(post.id)"
-                  class="text-red-500 hover:text-red-600"
+                  class="flex-1 px-3 py-1.5 rounded bg-gray-50 text-red-500 hover:bg-gray-100"
                 >
                   Delete
                 </button>
@@ -415,6 +416,41 @@ const deleteComment = async (postId: number, commentId: number) => {
     refresh()
   } catch (e) {
     console.error('Error deleting comment:', e)
+  }
+}
+
+// Handle post likes with unified counter
+const handleLike = async (postId: number, value: number) => {
+  if (!posts.value) return
+  const post = posts.value.find(p => p.id === postId)
+  if (!post) return
+
+  // Get current user's like value
+  const currentValue = post.userLikeValue || 0
+
+  // If clicking same button, remove the like
+  const newValue = currentValue === value ? 0 : value
+
+  try {
+    const response = await fetch(`${baseUrl}/api/likes`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ postId, value: newValue }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to update like')
+    }
+
+    // Update local state
+    post.userLikeValue = newValue
+    const data = await response.json()
+    post.likeCount = data.likeCount
+  } catch (e) {
+    console.error('Error handling like:', e)
   }
 }
 

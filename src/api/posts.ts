@@ -1,43 +1,53 @@
 import { type Express, type Request, type Response } from 'express'
-import { and, eq, desc, asc } from 'drizzle-orm';
+import { and, eq, desc, asc, sql } from 'drizzle-orm';
 
 import { db } from '../database';
-import { postsTable, usersTable, commentsTable } from '../db/schema';
+import { postsTable, usersTable, commentsTable, likesTable } from '../db/schema';
 
 export const initializePostsAPI = (app: Express) => {
     // Update get posts to include all comments
     app.get('/api/posts', async (req: Request, res: Response) => {
-        const posts = await db
-            .select({
-                id: postsTable.id,
-                content: postsTable.content,
-                userId: postsTable.userId,
-                username: usersTable.username,
-                createdAt: postsTable.createdAt,
-            })
-            .from(postsTable)
-            .leftJoin(usersTable, eq(postsTable.userId, usersTable.id))
-            .orderBy(desc(postsTable.createdAt))
+        try {
+            const userId = req.user?.id
+            const posts = await db
+                .select({
+                    id: postsTable.id,
+                    content: postsTable.content,
+                    userId: postsTable.userId,
+                    username: usersTable.username,
+                    createdAt: postsTable.createdAt,
+                    likeCount: sql`COALESCE(SUM(${likesTable.value}), 0)::integer`,
+                    userLikeValue: sql`MAX(CASE WHEN ${likesTable.userId} = ${userId} THEN ${likesTable.value} ELSE NULL END)::integer`
+                })
+                .from(postsTable)
+                .leftJoin(usersTable, eq(postsTable.userId, usersTable.id))
+                .leftJoin(likesTable, eq(postsTable.id, likesTable.postId))
+                .groupBy(postsTable.id, usersTable.username)
+                .orderBy(desc(postsTable.createdAt))
 
-        // Fetch all comments for each post (removed approval filter)
-        const postsWithComments = await Promise.all(
-            posts.map(async (post) => {
-                const comments = await db
-                    .select({
-                        id: commentsTable.id,
-                        content: commentsTable.content,
-                        userId: commentsTable.userId,
-                        username: usersTable.username,
-                        createdAt: commentsTable.createdAt,
-                    })
-                    .from(commentsTable)
-                    .leftJoin(usersTable, eq(commentsTable.userId, usersTable.id))
-                    .where(eq(commentsTable.postId, post.id))
-                    .orderBy(asc(commentsTable.createdAt)) // Changed to ascending order
-                return { ...post, comments }
-            })
-        )
-        res.send(postsWithComments)
+            // Fetch all comments for each post (removed approval filter)
+            const postsWithComments = await Promise.all(
+                posts.map(async (post) => {
+                    const comments = await db
+                        .select({
+                            id: commentsTable.id,
+                            content: commentsTable.content,
+                            userId: commentsTable.userId,
+                            username: usersTable.username,
+                            createdAt: commentsTable.createdAt,
+                        })
+                        .from(commentsTable)
+                        .leftJoin(usersTable, eq(commentsTable.userId, usersTable.id))
+                        .where(eq(commentsTable.postId, post.id))
+                        .orderBy(asc(commentsTable.createdAt)) // Changed to ascending order
+                    return { ...post, comments }
+                })
+            )
+            res.send(postsWithComments)
+        } catch (error) {
+            console.error('Error fetching posts:', error)
+            res.status(500).send({ error: 'Failed to fetch posts' })
+        }
     })
 
     // Add comment to post (simplified - removed approval logic)
@@ -60,6 +70,46 @@ export const initializePostsAPI = (app: Express) => {
             .returning()
         
         res.send(newComment[0])
+    })
+
+    // Update like/dislike endpoint
+    app.post('/api/likes', async (req: Request, res: Response) => {
+        const userId = req.user?.id
+        if (!userId) {
+            res.status(401).send({ error: 'Not authenticated' })
+            return
+        }
+
+        const { postId, value } = req.body // value: 1 for like, -1 for dislike, 0 to remove
+
+        try {
+            // Remove existing like/dislike
+            await db.delete(likesTable)
+                .where(and(
+                    eq(likesTable.userId, userId),
+                    eq(likesTable.postId, postId)
+                ))
+
+            // Add new like/dislike if value is not 0
+            if (value !== 0) {
+                await db.insert(likesTable)
+                    .values({ userId, postId, value })
+                    .returning()
+            }
+
+            // Get updated count
+            const [updated] = await db
+                .select({
+                    likeCount: sql`COALESCE(SUM(${likesTable.value}), 0)::integer`
+                })
+                .from(likesTable)
+                .where(eq(likesTable.postId, postId))
+
+            res.send(updated)
+        } catch (error) {
+            console.error('Error handling like:', error)
+            res.status(500).send({ error: 'Failed to process like' })
+        }
     })
 
     // Keep existing CRUD operations for posts and comments...
