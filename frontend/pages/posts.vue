@@ -127,13 +127,13 @@
             </div>
           </div>
 
-          <!-- Add comment form - Explicitly allow for all posts -->
+          <!-- Add comment form -->
           <form @submit.prevent="addComment(post.id)" class="mt-4">
             <div class="flex gap-2">
               <input
                 v-model="newComments[post.id]"
                 type="text"
-                :placeholder="'Add a comment to post ' + post.id"
+                placeholder="Add a comment"
                 class="flex-1 p-2 border rounded"
                 required
               />
