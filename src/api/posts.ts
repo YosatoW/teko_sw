@@ -17,6 +17,8 @@ export const initializePostsAPI = (app: Express) => {
                     userId: postsTable.userId,
                     username: usersTable.username,
                     createdAt: postsTable.createdAt,
+                    sentiment: postsTable.sentiment,
+                    correction: postsTable.correction,
                     likeCount: sql`COALESCE(SUM(${likesTable.value}), 0)::integer`,
                     userLikeValue: sql`MAX(CASE WHEN ${likesTable.userId} = ${userId} THEN ${likesTable.value} ELSE NULL END)::integer`
                 })
@@ -26,9 +28,14 @@ export const initializePostsAPI = (app: Express) => {
                 .groupBy(postsTable.id, usersTable.username)
                 .orderBy(desc(postsTable.createdAt))
 
+            // Filter out hate speech posts from other users
+            const filteredPosts = posts.filter(post => 
+                post.sentiment !== 'hate_speech' || post.userId === userId
+            )
+
             // Fetch all comments for each post (removed approval filter)
             const postsWithComments = await Promise.all(
-                posts.map(async (post) => {
+                filteredPosts.map(async (post) => {
                     const comments = await db
                         .select({
                             id: commentsTable.id,
@@ -36,6 +43,8 @@ export const initializePostsAPI = (app: Express) => {
                             userId: commentsTable.userId,
                             username: usersTable.username,
                             createdAt: commentsTable.createdAt,
+                            sentiment: commentsTable.sentiment,
+                            correction: commentsTable.correction,
                             likeCount: sql`COALESCE(SUM(${likesTable.value}), 0)::integer`,
                             userLikeValue: sql`MAX(CASE WHEN ${likesTable.userId} = ${userId} THEN ${likesTable.value} ELSE NULL END)::integer`
                         })
@@ -45,7 +54,13 @@ export const initializePostsAPI = (app: Express) => {
                         .where(eq(commentsTable.postId, post.id))
                         .groupBy(commentsTable.id, usersTable.username)
                         .orderBy(asc(commentsTable.createdAt)) // Changed to ascending order
-                    return { ...post, comments }
+
+                    // Filter out hate speech comments from other users
+                    const filteredComments = comments.filter(comment =>
+                        comment.sentiment !== 'hate_speech' || comment.userId === userId
+                    )
+
+                    return { ...post, comments: filteredComments }
                 })
             )
             res.send(postsWithComments)

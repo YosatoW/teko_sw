@@ -114,8 +114,20 @@
             </div>
           </div>
           
-          <!-- Post content -->
-          <p class="text-gray-800 whitespace-pre-wrap">{{ post.content }}</p>
+          <!-- Post content with warning -->
+          <div class="space-y-2">
+            <p v-if="post.sentiment === 'hate_speech'" 
+               class="bg-red-50 text-red-600 p-4 rounded-lg mb-2 flex items-center gap-2">
+              ⚠️ <span>This post has been flagged as hate speech and is only visible to you</span>
+            </p>
+            <p class="text-gray-800 whitespace-pre-wrap">{{ post.content }}</p>
+            
+            <!-- Show correction if available -->
+            <p v-if="post.correction" 
+               class="bg-blue-50 text-blue-600 p-2 rounded-lg text-sm mt-2">
+              💡 Suggested improvement: {{ post.correction }}
+            </p>
+          </div>
 
           <!-- Comment buttons section -->
           <div class="mt-4 border-t pt-4 flex gap-4">
@@ -254,8 +266,20 @@
                         </div>
                       </div>
                     </div>
-                    <!-- Comment content -->
-                    <p class="text-gray-800 whitespace-pre-wrap mt-2">{{ comment.content }}</p>
+                    <!-- Comment content with warning -->
+                    <div class="space-y-2">
+                      <p v-if="comment.sentiment === 'hate_speech'" 
+                         class="bg-red-50 text-red-600 p-4 rounded-lg mb-2 flex items-center gap-2">
+                        ⚠️ <span>This comment has been flagged as hate speech and is only visible to you</span>
+                      </p>
+                      <p class="text-gray-800 whitespace-pre-wrap">{{ comment.content }}</p>
+                      
+                      <!-- Show correction if available -->
+                      <p v-if="comment.correction" 
+                         class="bg-blue-50 text-blue-600 p-2 rounded-lg text-sm mt-2">
+                        💡 Suggested improvement: {{ comment.correction }}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -375,14 +399,32 @@ const toggleQuickComment = (postId: number) => {
 }
 
 // Fetch posts
-const { pending, data: posts, error, refresh } = await useFetch<Array<{
+interface Post {
   id: number
   userId: number
   content: string
   username: string
   createdAt: string
-  comments: Array<any>
-}>>(`${baseUrl}/api/posts`, {
+  sentiment?: string
+  correction?: string
+  comments: Array<Comment>
+  likeCount: number
+  userLikeValue?: number
+}
+
+interface Comment {
+  id: number
+  userId: number
+  content: string
+  username: string
+  createdAt: string
+  sentiment?: string
+  correction?: string
+  likeCount: number
+  userLikeValue?: number
+}
+
+const { pending, data: posts, error, refresh } = await useFetch<Array<Post>>(`${baseUrl}/api/posts`, {
   headers: {
     'Authorization': `Bearer ${localStorage.getItem('token')}`
   }

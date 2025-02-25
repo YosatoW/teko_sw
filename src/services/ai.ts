@@ -4,7 +4,7 @@ import zodToJsonSchema from 'zod-to-json-schema'
 
 // Test other models from ollama
 // ⚠️ Not more than 7 billion parameters ⚠️
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.2:1b'
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.2:3b'
 
 const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:12434'
 const ollama = new Ollama({
