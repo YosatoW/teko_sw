@@ -1,5 +1,5 @@
 import { type Express, type Request, type Response } from 'express'
-import { and, eq, desc } from 'drizzle-orm';
+import { and, eq, desc, asc } from 'drizzle-orm';
 
 import { db } from '../database';
 import { postsTable, usersTable, commentsTable } from '../db/schema';
@@ -33,7 +33,7 @@ export const initializePostsAPI = (app: Express) => {
                     .from(commentsTable)
                     .leftJoin(usersTable, eq(commentsTable.userId, usersTable.id))
                     .where(eq(commentsTable.postId, post.id))
-                    .orderBy(desc(commentsTable.createdAt))
+                    .orderBy(asc(commentsTable.createdAt)) // Changed to ascending order
                 return { ...post, comments }
             })
         )

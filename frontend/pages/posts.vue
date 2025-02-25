@@ -47,38 +47,67 @@
           </div>
         </div>
         <!-- View mode -->
-        <div v-else>
-          <p class="text-gray-800">{{ post.content }}</p>
-          <div class="mt-2 flex justify-between items-center">
-            <div class="text-sm text-gray-500">
-              <p>Posted by: {{ post.username }}</p>
-              <p>{{ formatDate(post.createdAt) }}</p>
+        <div v-else class="space-y-4">
+          <!-- Post header -->
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-medium text-gray-900">{{ post.username }}</p>
+              <p class="text-sm text-gray-500">{{ formatDate(post.createdAt) }}</p>
             </div>
-            <div v-if="post.userId === currentUserId" class="flex gap-2">
-              <button
-                @click="startEdit(post)"
-                class="text-blue-500 hover:text-blue-600"
-              >
-                Edit
-              </button>
-              <button
-                @click="deletePost(post.id)"
-                class="text-red-500 hover:text-red-600"
-              >
-                Delete
-              </button>
+            <div class="flex items-center gap-4">
+              <!-- Like/Dislike buttons -->
+              <div class="flex gap-2">
+                <button 
+                  @click="handleLike(post.id)"
+                  class="flex items-center gap-1 px-2 py-1 rounded"
+                  :class="{
+                    'bg-blue-100': post.userLike === true,
+                    'hover:bg-blue-50': post.userLike !== true
+                  }"
+                >
+                  <span>👍 {{ post.likes || 0 }}</span>
+                </button>
+                <button 
+                  @click="handleDislike(post.id)"
+                  class="flex items-center gap-1 px-2 py-1 rounded"
+                  :class="{
+                    'bg-red-100': post.userLike === false,
+                    'hover:bg-red-50': post.userLike !== false
+                  }"
+                >
+                  <span>👎 {{ post.dislikes || 0 }}</span>
+                </button>
+              </div>
+              <!-- Edit/Delete buttons -->
+              <div v-if="post.userId === currentUserId" class="flex gap-2">
+                <button
+                  @click="startEdit(post)"
+                  class="text-blue-500 hover:text-blue-600"
+                >
+                  Edit
+                </button>
+                <button
+                  @click="deletePost(post.id)"
+                  class="text-red-500 hover:text-red-600"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
+          
+          <!-- Post content -->
+          <p class="text-gray-800 whitespace-pre-wrap">{{ post.content }}</p>
         </div>
 
-        <!-- Comments section - Debug info added -->
+        <!-- Comments section -->
         <div class="mt-4 border-t pt-4">
           <h3 class="text-lg font-semibold mb-2">
             Comments
           </h3>
 
           <!-- Comments list -->
-          <div v-if="post.comments?.length" class="space-y-2">
+          <div v-if="post.comments?.length" class="space-y-2 max-h-96 overflow-y-auto mb-4">
             <div v-for="comment in post.comments" :key="comment.id" class="ml-4 p-2 bg-gray-50 rounded">
               <div v-if="editingComment?.id === comment.id">
                 <input
@@ -102,27 +131,55 @@
                 </div>
               </div>
               <div v-else>
-                <p class="text-sm">{{ comment.content }}</p>
-                <div class="flex justify-between items-center mt-1">
-                  <div class="text-xs text-gray-500">
-                    <p>By: {{ comment.username }}</p>
-                    <p>{{ formatDate(comment.createdAt) }}</p>
+                <!-- Comment header -->
+                <div class="flex justify-between items-start mb-1">
+                  <div>
+                    <p class="text-sm font-medium text-gray-900">{{ comment.username }}</p>
+                    <p class="text-xs text-gray-500">{{ formatDate(comment.createdAt) }}</p>
                   </div>
-                  <div v-if="comment.userId === currentUserId" class="flex gap-2">
-                    <button
-                      @click="startCommentEdit(comment)"
-                      class="text-xs text-blue-500 hover:text-blue-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      @click="deleteComment(post.id, comment.id)"
-                      class="text-xs text-red-500 hover:text-red-600"
-                    >
-                      Delete
-                    </button>
+                  <div class="flex items-center gap-2">
+                    <!-- Like/Dislike buttons -->
+                    <div class="flex gap-1">
+                      <button 
+                        @click="handleCommentLike(comment.id)"
+                        class="text-xs px-1.5 py-0.5 rounded"
+                        :class="{
+                          'bg-blue-100': comment.userLike === true,
+                          'hover:bg-blue-50': comment.userLike !== true
+                        }"
+                      >
+                        <span>👍 {{ comment.likes || 0 }}</span>
+                      </button>
+                      <button 
+                        @click="handleCommentDislike(comment.id)"
+                        class="text-xs px-1.5 py-0.5 rounded"
+                        :class="{
+                          'bg-red-100': comment.userLike === false,
+                          'hover:bg-red-50': comment.userLike !== false
+                        }"
+                      >
+                        <span>👎 {{ comment.dislikes || 0 }}</span>
+                      </button>
+                    </div>
+                    <!-- Edit/Delete buttons -->
+                    <div v-if="comment.userId === currentUserId" class="flex gap-2">
+                      <button
+                        @click="startCommentEdit(comment)"
+                        class="text-xs text-blue-500 hover:text-blue-600"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        @click="deleteComment(post.id, comment.id)"
+                        class="text-xs text-red-500 hover:text-red-600"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
+                <!-- Comment content -->
+                <p class="text-sm whitespace-pre-wrap">{{ comment.content }}</p>
               </div>
             </div>
           </div>
