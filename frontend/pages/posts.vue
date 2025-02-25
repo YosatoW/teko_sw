@@ -98,15 +98,17 @@
               <div v-if="post.userId === currentUserId" class="flex gap-2">
                 <button
                   @click="startEdit(post)"
-                  class="flex-1 px-3 py-1.5 rounded bg-gray-50 text-blue-500 hover:bg-gray-100"
+                  class="flex-1 px-3 py-1.5 rounded bg-gray-50 text-blue-500 hover:bg-gray-100 transition-colors"
+                  title="Edit post"
                 >
-                  Edit
+                  ✏️
                 </button>
                 <button
                   @click="deletePost(post.id)"
-                  class="flex-1 px-3 py-1.5 rounded bg-gray-50 text-red-500 hover:bg-gray-100"
+                  class="flex-1 px-3 py-1.5 rounded bg-gray-50 text-red-500 hover:bg-gray-100 transition-colors"
+                  title="Delete post"
                 >
-                  Delete
+                  🗑️
                 </button>
               </div>
             </div>
@@ -114,110 +116,143 @@
           
           <!-- Post content -->
           <p class="text-gray-800 whitespace-pre-wrap">{{ post.content }}</p>
-        </div>
 
-        <!-- Comments section -->
-        <div class="mt-4 border-t pt-4">
-          <h3 class="text-lg font-semibold mb-2">
-            Comments
-          </h3>
-
-          <!-- Comments list -->
-          <div v-if="post.comments?.length" class="space-y-2 max-h-96 overflow-y-auto mb-4">
-            <div v-for="comment in post.comments" :key="comment.id" class="ml-4 p-2 bg-gray-50 rounded">
-              <div v-if="editingComment?.id === comment.id">
-                <input
-                  v-model="editingComment.content"
-                  type="text"
-                  class="w-full p-2 border rounded mb-2"
-                />
-                <div class="flex gap-2">
-                  <button
-                    @click="updateComment(post.id, comment.id)"
-                    class="text-xs bg-green-500 text-white px-2 py-1 rounded"
-                  >
-                    Save
-                  </button>
-                  <button
-                    @click="cancelCommentEdit"
-                    class="text-xs bg-gray-500 text-white px-2 py-1 rounded"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-              <div v-else>
-                <!-- Comment header -->
-                <div class="flex justify-between items-start mb-1">
-                  <div>
-                    <p class="text-sm font-medium text-gray-900">{{ comment.username }}</p>
-                    <p class="text-xs text-gray-500">{{ formatDate(comment.createdAt) }}</p>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <!-- Like/Dislike buttons -->
-                    <div class="flex gap-1">
-                      <button 
-                        @click="handleCommentLike(comment.id)"
-                        class="text-xs px-1.5 py-0.5 rounded"
-                        :class="{
-                          'bg-blue-100': comment.userLike === true,
-                          'hover:bg-blue-50': comment.userLike !== true
-                        }"
-                      >
-                        <span>👍 {{ comment.likes || 0 }}</span>
-                      </button>
-                      <button 
-                        @click="handleCommentDislike(comment.id)"
-                        class="text-xs px-1.5 py-0.5 rounded"
-                        :class="{
-                          'bg-red-100': comment.userLike === false,
-                          'hover:bg-red-50': comment.userLike !== false
-                        }"
-                      >
-                        <span>👎 {{ comment.dislikes || 0 }}</span>
-                      </button>
-                    </div>
-                    <!-- Edit/Delete buttons -->
-                    <div v-if="comment.userId === currentUserId" class="flex gap-2">
-                      <button
-                        @click="startCommentEdit(comment)"
-                        class="text-xs text-blue-500 hover:text-blue-600"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        @click="deleteComment(post.id, comment.id)"
-                        class="text-xs text-red-500 hover:text-red-600"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <!-- Comment content -->
-                <p class="text-sm whitespace-pre-wrap">{{ comment.content }}</p>
-              </div>
-            </div>
+          <!-- Comment toggle button -->
+          <div class="mt-4 border-t pt-4">
+            <button
+              @click="toggleComments(post.id)"
+              class="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            >
+              <span class="text-sm font-medium">
+                Comments ({{ post.comments?.length || 0 }})
+              </span>
+              <span class="text-xs" v-if="showComments[post.id]">▼</span>
+              <span class="text-xs" v-else>▶</span>
+            </button>
           </div>
 
-          <!-- Add comment form -->
-          <form @submit.prevent="addComment(post.id)" class="mt-4">
-            <div class="flex gap-2">
-              <input
-                v-model="newComments[post.id]"
-                type="text"
-                placeholder="Add a comment"
-                class="flex-1 p-2 border rounded"
-                required
-              />
-              <button
-                type="submit"
-                class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-              >
-                Comment
-              </button>
+          <!-- Comments section -->
+          <div v-if="showComments[post.id]" class="mt-4">
+            <!-- Comments section -->
+            <div class="mt-4 border-t pt-4">
+              <h3 class="text-lg font-semibold mb-2">
+                Comments
+              </h3>
+
+              <!-- Comments list -->
+              <div v-if="post.comments?.length" class="space-y-4">
+                <div v-for="comment in post.comments" :key="comment.id" class="p-4 border rounded-lg bg-white">
+                  <div v-if="editingComment?.id === comment.id">
+                    <textarea
+                      v-model="editingComment.content"
+                      class="w-full p-2 border rounded-lg resize-none h-16 mb-2"
+                    />
+                    <div class="flex gap-2">
+                      <button
+                        @click="updateComment(post.id, comment.id)"
+                        class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+                      >
+                        Save
+                      </button>
+                      <button
+                        @click="cancelCommentEdit"
+                        class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                  <div v-else>
+                    <!-- Comment header -->
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <p class="font-medium text-gray-900">{{ comment.username }}</p>
+                        <p class="text-sm text-gray-500">{{ formatDate(comment.createdAt) }}</p>
+                      </div>
+                      <div class="flex flex-col gap-2">
+                        <!-- Comment Like/Dislike buttons -->
+                        <div v-if="comment.userId !== currentUserId" class="flex gap-2 items-center">
+                          <button 
+                            @click="handleCommentLike(comment.id, 1)"
+                            class="px-3 py-1.5 rounded transition-colors"
+                            :class="{ 
+                              'bg-blue-100 text-blue-600': comment.userLikeValue === 1,
+                              'bg-gray-50 hover:bg-gray-100': comment.userLikeValue !== 1
+                            }"
+                          >
+                            👍
+                          </button>
+                          <span class="font-medium" :class="{
+                            'text-blue-600': comment.likeCount > 0,
+                            'text-red-600': comment.likeCount < 0
+                          }">
+                            {{ comment.likeCount }}
+                          </span>
+                          <button 
+                            @click="handleCommentLike(comment.id, -1)"
+                            class="px-3 py-1.5 rounded transition-colors"
+                            :class="{ 
+                              'bg-red-100 text-red-600': comment.userLikeValue === -1,
+                              'bg-gray-50 hover:bg-gray-100': comment.userLikeValue !== -1
+                            }"
+                          >
+                            👎
+                          </button>
+                        </div>
+                        <!-- Show rating for own comments -->
+                        <div v-else class="text-center">
+                          <span class="font-medium" :class="{
+                            'text-blue-500': comment.likeCount > 0,
+                            'text-red-500': comment.likeCount < 0
+                          }">
+                            Rating: {{ comment.likeCount }}
+                          </span>
+                        </div>
+                        <!-- Edit/Delete buttons -->
+                        <div v-if="comment.userId === currentUserId" class="flex gap-2">
+                          <button
+                            @click="startCommentEdit(comment)"
+                            class="px-3 py-1.5 rounded bg-gray-50 text-blue-500 hover:bg-gray-100 transition-colors"
+                            title="Edit comment"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            @click="deleteComment(post.id, comment.id)"
+                            class="px-3 py-1.5 rounded bg-gray-50 text-red-500 hover:bg-gray-100 transition-colors"
+                            title="Delete comment"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Comment content -->
+                    <p class="text-gray-800 whitespace-pre-wrap mt-2">{{ comment.content }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add comment form -->
+              <form @submit.prevent="addComment(post.id)" class="mt-4">
+                <div class="space-y-2">
+                  <textarea
+                    v-model="newComments[post.id]"
+                    rows="2"
+                    placeholder="Add a comment"
+                    class="w-full p-2 border rounded-lg resize-none"
+                    required
+                  ></textarea>
+                  <button
+                    type="submit"
+                    class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                  >
+                    Comment
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
@@ -265,6 +300,14 @@ const currentUserId = computed(() => {
 
 const newComments = ref<Record<number, string>>({})
 const editingComment = ref<{ id: number; content: string } | null>(null)
+
+// Add reactive ref for tracking shown comments
+const showComments = ref<Record<number, boolean>>({})
+
+// Toggle comments visibility
+const toggleComments = (postId: number) => {
+  showComments.value[postId] = !showComments.value[postId]
+}
 
 // Fetch posts
 const { pending, data: posts, error, refresh } = await useFetch<Array<{
@@ -360,6 +403,9 @@ const deletePost = async (id: number) => {
 
 // Add comment with debug logging
 const addComment = async (postId: number) => {
+  // Show comments section when adding a comment
+  showComments.value[postId] = true
+  
   console.log('Attempting to add comment to post:', postId)
   try {
     const response = await fetch(`${baseUrl}/api/posts/${postId}/comments`, {
@@ -475,6 +521,55 @@ const handleLike = async (postId: number, value: number) => {
     post.likeCount = data.likeCount
   } catch (e) {
     console.error('Error handling like:', e)
+  }
+}
+
+// Handle comment likes
+const handleCommentLike = async (commentId: number, value: number) => {
+  if (!posts.value) return
+  
+  // Find the comment in the posts
+  let targetComment = null
+  for (const post of posts.value) {
+    const comment = post.comments.find(c => c.id === commentId)
+    if (comment) {
+      targetComment = comment
+      break
+    }
+  }
+  
+  if (!targetComment || targetComment.userId === currentUserId.value) return
+
+  // Get current user's like value
+  const currentValue = targetComment.userLikeValue || 0
+
+  // If clicking same button, remove the like
+  const newValue = currentValue === value ? 0 : value
+
+  try {
+    const response = await fetch(`${baseUrl}/api/comments/likes`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ commentId, value: newValue }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      if (error.message) {
+        alert(error.message)
+      }
+      return
+    }
+
+    // Update local state
+    targetComment.userLikeValue = newValue
+    const data = await response.json()
+    targetComment.likeCount = data.likeCount
+  } catch (e) {
+    console.error('Error handling comment like:', e)
   }
 }
 
