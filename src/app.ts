@@ -14,6 +14,7 @@ if (!allowedServerRoles.includes(SERVER_ROLE)) {
 
 // for the worker server & api queue
 initializeMessageBroker()
+initializeCache()
 
 // For the API server
 if (SERVER_ROLE === 'all' || SERVER_ROLE === 'api') {
@@ -24,7 +25,7 @@ if (SERVER_ROLE === 'all' || SERVER_ROLE === 'api') {
     app.use(express.json())
     
     initializeAPI(app)
-    initializeCache()
+    
 
     // Server starten
     app.listen(port, () => {
