@@ -33,7 +33,7 @@ export const initializePostsAPI = (app: Express) => {
                 post.sentiment !== 'hate_speech' || post.userId === userId
             )
 
-            // Fetch all comments for each post (removed approval filter)
+            // Fetch comments for each post
             const postsWithComments = await Promise.all(
                 filteredPosts.map(async (post) => {
                     const comments = await db
@@ -63,6 +63,7 @@ export const initializePostsAPI = (app: Express) => {
                     return { ...post, comments: filteredComments }
                 })
             )
+            
             res.send(postsWithComments)
         } catch (error) {
             console.error('Error fetching posts:', error)

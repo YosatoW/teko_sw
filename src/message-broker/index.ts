@@ -4,6 +4,8 @@ import { db } from '../database'
 import { postsTable, commentsTable } from '../db/schema'
 import { eq } from 'drizzle-orm'
 import { textAnalysis } from '../services/ai'
+import { SERVER_ROLE } from '../app'
+
 
 let sentimentQueue: Queue 
 let sentimentWorker: Worker 
@@ -22,7 +24,12 @@ export const initializeMessageBroker = () => {
     sentimentWorker = new Worker('post-sentiment', analyzeSentiment, { connection })
     new Worker('comment-sentiment', analyzeCommentSentiment, { connection })
     
+    sentimentQueue = new Queue('sentiment', { connection })
     console.log('Message broker initialized')
+    if (SERVER_ROLE === 'all' || SERVER_ROLE === 'worker') {
+        sentimentWorker = new Worker('sentiment', analyzeSentiment, { connection })
+        console.log('Sentiment worker initialized')
+    }
 }
 
 const analyzeSentiment = async (job: Job) => {
@@ -88,3 +95,5 @@ const analyzeCommentSentiment = async (job: Job) => {
 }
 
 export { sentimentQueue, commentSentimentQueue }
+
+
