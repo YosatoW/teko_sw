@@ -15,7 +15,7 @@ const ollama = new Ollama({
 await ollama.pull({ model: OLLAMA_MODEL })
 
 const TextAnalysisResult = z.object({
-  sentiment: z.enum(['ok', 'dangerous']),
+  sentiment: z.enum(['ok', 'hate_speech']),
   subjectivity: z.enum(['subjective', 'objective']),
   correction: z.string(),
 })
@@ -23,7 +23,10 @@ const TextAnalysisResult = z.object({
 export async function textAnalysis(text: string) {
   const response = await ollama.chat({
     model: OLLAMA_MODEL,
-    messages: [{ role: 'user', content: `Analyze the following text for harmful or wrong content: ${text}` }],
+    messages: [{ 
+      role: 'user', 
+      content: `Analyze the following text for hate speech and harmful content. Classify as 'hate_speech' if it contains hate speech, otherwise 'ok': ${text}` 
+    }],
     format: zodToJsonSchema(TextAnalysisResult),
   })
   return JSON.parse(response.message.content) as z.infer<typeof TextAnalysisResult>

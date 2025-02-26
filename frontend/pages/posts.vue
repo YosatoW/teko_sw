@@ -405,7 +405,7 @@ interface Post {
   content: string
   username: string
   createdAt: string
-  sentiment?: string
+  sentiment?: 'ok' | 'hate_speech';
   correction?: string
   comments: Array<Comment>
   likeCount: number
@@ -418,7 +418,7 @@ interface Comment {
   content: string
   username: string
   createdAt: string
-  sentiment?: string
+  sentiment?: 'ok' | 'hate_speech';
   correction?: string
   likeCount: number
   userLikeValue?: number
