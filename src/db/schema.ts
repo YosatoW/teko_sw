@@ -18,14 +18,10 @@ export const usersTable = pgTable('users', {
 export const commentsTable = pgTable("comments", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   content: varchar({ length: 255 }).notNull(),
-  userId: integer()
-    .notNull()
-    .references(() => usersTable.id, { onDelete: 'cascade' }),
-  postId: integer()
-    .notNull()
-    .references(() => postsTable.id, { onDelete: 'cascade' }),
   sentiment: varchar({ length: 80 }),
   correction: varchar({ length: 255 }),
+  userId: integer().notNull().references(() => usersTable.id, { onDelete: 'cascade' }),
+  postId: integer().notNull().references(() => postsTable.id, { onDelete: 'cascade' }),
   approved: boolean().default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })

@@ -5,8 +5,8 @@ import {initializeAPI} from './api'
 import { initializeMessageBroker } from './message-broker'  // neue Zeile
 
 // Server initialisieren
-const SERVER_ROLE = process.env.SERVER_ROLE || 'all'
-const allowedServerRoles = [ 'all', 'api', 'worker' ]
+export const SERVER_ROLE = process.env.SERVER_ROLE || 'all'
+export const allowedServerRoles = [ 'all', 'api', 'worker' ]
 if (!allowedServerRoles.includes(SERVER_ROLE)) {
     process.exit(1)
 }

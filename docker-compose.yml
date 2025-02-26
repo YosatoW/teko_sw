@@ -33,8 +33,11 @@ services:
 
   minitwitter1:
     image: wotasoy/simple-api
-    container_name: minitwitter1
-    restart: always
+    # container_name: minitwitter1
+    # restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
       OLLAMA_HOST: http://ollama:11434
@@ -45,8 +48,11 @@ services:
 
   minitwitter2:
     image: wotasoy/simple-api
-    container_name: minitwitter2
-    restart: always
+    # container_name: minitwitter2
+    # restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
       OLLAMA_HOST: http://ollama:11434
@@ -57,8 +63,8 @@ services:
 
   minitwitter-worker:
     image: wotasoy/simple-api
-    container_name: minitwitter-worker
-    restart: always
+    # container_name: minitwitter-worker
+    # restart: always
     build:
       context: .
       dockerfile: Dockerfile

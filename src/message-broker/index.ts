@@ -4,6 +4,8 @@ import { db } from '../database'
 import { postsTable, commentsTable } from '../db/schema'
 import { eq } from 'drizzle-orm'
 import { textAnalysis } from '../services/ai'
+import { SERVER_ROLE } from '../app'
+
 
 let sentimentQueue: Queue 
 let sentimentWorker: Worker 
