@@ -37,7 +37,9 @@ services:
     restart: always
     environment:
       DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
-      command: /bin/sh -c "bunx drizzle-kit push && bun run prod"
+      OLLAMA_HOST: http://ollama:11434
+      REDIS_HOST: redis
+      SERVER_ROLE: api
     volumes:
       - ./docker-data/postgres_db:/var/lib/postgresql/data
 
@@ -47,7 +49,24 @@ services:
     restart: always
     environment:
       DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
-      command: /bin/sh -c "bunx drizzle-kit push && bun run prod"
+      OLLAMA_HOST: http://ollama:11434
+      REDIS_HOST: redis
+      SERVER_ROLE: api
+    volumes:
+      - ./docker-data/postgres_db:/var/lib/postgresql/data
+
+  minitwitter-worker:
+    image: wotasoy/simple-api
+    container_name: minitwitter-worker
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
+      OLLAMA_HOST: http://ollama:11434
+      REDIS_HOST: redis
+      SERVER_ROLE: worker
     volumes:
       - ./docker-data/postgres_db:/var/lib/postgresql/data
 
