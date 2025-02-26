@@ -6,7 +6,7 @@
     "@types/bun": "latest",
     "@types/express": "^5.0.0",
     "@types/pg": "^8.11.11",
-    "drizzle-kit": "^0.30.4",
+    "drizzle-kit": "^0.30.5",
     "tsx": "^4.19.3"
   },
   "peerDependencies": {
@@ -17,7 +17,8 @@
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.9",
     "bcrypt": "^5.1.1",
-    "bullmq": "^5.41.5",
+    "bullmq": "^5.41.6",
+    "chalk": "^4.1.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.39.3",
@@ -25,11 +26,10 @@
     "ioredis": "^5.5.0",
     "jsonwebtoken": "^9.0.2",
     "nuxt-app": "./frontend",
-    "ollama": "^0.5.13",
+    "ollama": "^0.5.14",
     "pg": "^8.13.3",
     "zod": "^3.24.2",
-    "zod-to-json-schema": "^3.24.2",
-    "chalk": "^4.1.2"
+    "zod-to-json-schema": "^3.24.3"
   },
   "trustedDependencies": [
     "@parcel/watcher",
