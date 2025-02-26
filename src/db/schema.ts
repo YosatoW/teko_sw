@@ -6,9 +6,8 @@ export const postsTable = pgTable("posts", {
   sentiment: varchar({ length: 80 }),
   correction: varchar({ length: 255 }),
   userId: integer().notNull().references(() => usersTable.id, {onDelete: 'cascade'}),
-
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 })
-
 
 export const usersTable = pgTable('users', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
