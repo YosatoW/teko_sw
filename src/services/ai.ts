@@ -33,14 +33,42 @@ const TextAnalysisResult = z.object({
 export async function textAnalysis(text: string) {
   await initializeOllama()
   console.log('Analyzing text:', text)
-  const response = await ollama.chat({
-    model: OLLAMA_MODEL,
-    messages: [{ 
-      role: 'user', 
-      content: `Analyze the following text for hate speech and harmful content. Classify as 'hate_speech' if it contains hate speech, otherwise 'ok': ${text}` 
-    }],
-    format: zodToJsonSchema(TextAnalysisResult),
-  })
-  console.log('Analysis done')
-  return JSON.parse(response.message.content) as z.infer<typeof TextAnalysisResult>
+
+  const prompt = `
+Analyze the following text for inappropriate content.
+Respond in JSON format with these rules:
+
+"sentiment": Classify as "hate_speech" if the text contains ANY of:
+- Hate speech or discrimination
+- Offensive language or slurs
+- Personal attacks
+- Harassment
+- Threats
+Otherwise, use "ok"
+
+"subjectivity": Use "subjective" for opinions, "objective" for facts
+
+"correction": If sentiment is "hate_speech", suggest a more appropriate way to express the message
+
+Text to analyze: "${text}"
+`
+
+  try {
+    const response = await ollama.chat({
+      model: OLLAMA_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      format: zodToJsonSchema(TextAnalysisResult),
+    })
+
+    console.log('Analysis result:', response.message.content)
+    return JSON.parse(response.message.content) as z.infer<typeof TextAnalysisResult>
+  } catch (error) {
+    console.error('Analysis failed:', error)
+    // Return safe default if analysis fails
+    return {
+      sentiment: 'ok',
+      subjectivity: 'objective',
+      correction: undefined
+    }
+  }
 }
