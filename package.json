@@ -28,10 +28,14 @@
     "ollama": "^0.5.13",
     "pg": "^8.13.3",
     "zod": "^3.24.2",
-    "zod-to-json-schema": "^3.24.2"
+    "zod-to-json-schema": "^3.24.2",
+    "chalk": "^4.1.2"
   },
   "trustedDependencies": [
     "@parcel/watcher",
     "nuxt-app"
-  ]
+  ],
+  "scripts": {
+    "show-sentiments": "ts-node src/commands/show-sentiments.ts"
+  }
 }

@@ -47,104 +47,277 @@
           </div>
         </div>
         <!-- View mode -->
-        <div v-else>
-          <p class="text-gray-800">{{ post.content }}</p>
-          <div class="mt-2 flex justify-between items-center">
-            <div class="text-sm text-gray-500">
-              <p>Posted by: {{ post.username }}</p>
-              <p>{{ formatDate(post.createdAt) }}</p>
+        <div v-else class="space-y-4">
+          <!-- Post header -->
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-medium text-gray-900">{{ post.username }}</p>
+              <p class="text-sm text-gray-500">{{ formatDate(post.createdAt) }}</p>
             </div>
-            <div v-if="post.userId === currentUserId" class="flex gap-2">
-              <button
-                @click="startEdit(post)"
-                class="text-blue-500 hover:text-blue-600"
-              >
-                Edit
-              </button>
-              <button
-                @click="deletePost(post.id)"
-                class="text-red-500 hover:text-red-600"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Comments section - Debug info added -->
-        <div class="mt-4 border-t pt-4">
-          <h3 class="text-lg font-semibold mb-2">
-            Comments
-          </h3>
-
-          <!-- Comments list -->
-          <div v-if="post.comments?.length" class="space-y-2">
-            <div v-for="comment in post.comments" :key="comment.id" class="ml-4 p-2 bg-gray-50 rounded">
-              <div v-if="editingComment?.id === comment.id">
-                <input
-                  v-model="editingComment.content"
-                  type="text"
-                  class="w-full p-2 border rounded mb-2"
-                />
-                <div class="flex gap-2">
-                  <button
-                    @click="updateComment(post.id, comment.id)"
-                    class="text-xs bg-green-500 text-white px-2 py-1 rounded"
-                  >
-                    Save
-                  </button>
-                  <button
-                    @click="cancelCommentEdit"
-                    class="text-xs bg-gray-500 text-white px-2 py-1 rounded"
-                  >
-                    Cancel
-                  </button>
-                </div>
+            <!-- Action buttons column -->
+            <div class="flex flex-col gap-2">
+              <!-- Like/Dislike buttons - Only show for other users' posts -->
+              <div v-if="post.userId !== currentUserId" class="flex gap-2 items-center">
+                <button 
+                  @click="handleLike(post.id, 1)"
+                  class="px-3 py-1.5 rounded transition-colors"
+                  :class="{ 
+                    'bg-blue-100 text-blue-600': post.userLikeValue === 1,
+                    'bg-gray-50 hover:bg-gray-100': post.userLikeValue !== 1
+                  }"
+                >
+                  👍
+                </button>
+                <span class="font-medium" :class="{
+                  'text-blue-600': post.likeCount > 0,
+                  'text-red-600': post.likeCount < 0
+                }">
+                  {{ post.likeCount }}
+                </span>
+                <button 
+                  @click="handleLike(post.id, -1)"
+                  class="px-3 py-1.5 rounded transition-colors"
+                  :class="{ 
+                    'bg-red-100 text-red-600': post.userLikeValue === -1,
+                    'bg-gray-50 hover:bg-gray-100': post.userLikeValue !== -1
+                  }"
+                >
+                  👎
+                </button>
               </div>
-              <div v-else>
-                <p class="text-sm">{{ comment.content }}</p>
-                <div class="flex justify-between items-center mt-1">
-                  <div class="text-xs text-gray-500">
-                    <p>By: {{ comment.username }}</p>
-                    <p>{{ formatDate(comment.createdAt) }}</p>
-                  </div>
-                  <div v-if="comment.userId === currentUserId" class="flex gap-2">
-                    <button
-                      @click="startCommentEdit(comment)"
-                      class="text-xs text-blue-500 hover:text-blue-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      @click="deleteComment(post.id, comment.id)"
-                      class="text-xs text-red-500 hover:text-red-600"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+              <!-- Show just the count for own posts -->
+              <div v-else class="text-center">
+                <span class="font-medium" :class="{
+                  'text-blue-500': post.likeCount > 0,
+                  'text-red-500': post.likeCount < 0
+                }">
+                  Rating: {{ post.likeCount }}
+                </span>
+              </div>
+              <!-- Edit/Delete buttons -->
+              <div v-if="post.userId === currentUserId" class="flex gap-2">
+                <button
+                  @click="startEdit(post)"
+                  class="flex-1 px-3 py-1.5 rounded bg-gray-50 text-blue-500 hover:bg-gray-100 transition-colors"
+                  title="Edit post"
+                >
+                  ✏️
+                </button>
+                <button
+                  @click="deletePost(post.id)"
+                  class="flex-1 px-3 py-1.5 rounded bg-gray-50 text-red-500 hover:bg-gray-100 transition-colors"
+                  title="Delete post"
+                >
+                  🗑️
+                </button>
               </div>
             </div>
           </div>
+          
+          <!-- Post content with warning and improvement -->
+          <div class="space-y-2">
+            <p v-if="post.sentiment === 'hate_speech'" 
+               class="bg-red-50 text-red-600 p-4 rounded-lg mb-2 flex items-center gap-2">
+              ⚠️ <span>This post has been flagged as hate speech and is only visible to you</span>
+            </p>
+            <p class="text-gray-800 whitespace-pre-wrap">{{ post.content }}</p>
+            
+            <!-- Show correction only to post creator -->
+            <p v-if="post.correction && post.userId === currentUserId" 
+               class="bg-blue-50 text-blue-600 p-2 rounded-lg text-sm mt-2">
+              💡 Suggested improvement: {{ post.correction }}
+            </p>
+          </div>
 
-          <!-- Add comment form - Explicitly allow for all posts -->
-          <form @submit.prevent="addComment(post.id)" class="mt-4">
-            <div class="flex gap-2">
-              <input
+          <!-- Comment buttons section -->
+          <div class="mt-4 border-t pt-4 flex gap-4">
+            <!-- Direct Add Comment button -->
+            <button
+              @click="toggleQuickComment(post.id)"
+              class="text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-1"
+            >
+              <span>Add Comment</span>
+              <span class="text-xs" v-if="showQuickComment[post.id]">▼</span>
+              <span class="text-xs" v-else>▶</span>
+            </button>
+
+            <!-- View Comments toggle button -->
+            <button
+              @click="toggleComments(post.id)"
+              class="text-gray-600 hover:text-gray-900 text-sm font-medium flex items-center gap-1"
+            >
+              <span>View Comments ({{ post.comments?.length || 0 }})</span>
+              <span class="text-xs" v-if="showComments[post.id]">▼</span>
+              <span class="text-xs" v-else>▶</span>
+            </button>
+          </div>
+
+          <!-- Quick Comment form -->
+          <div v-if="showQuickComment[post.id] && !showComments[post.id]" class="mt-4">
+            <form @submit.prevent="addComment(post.id)" class="space-y-2">
+              <textarea
                 v-model="newComments[post.id]"
-                type="text"
-                :placeholder="'Add a comment to post ' + post.id"
-                class="flex-1 p-2 border rounded"
+                rows="2"
+                placeholder="Write your comment..."
+                class="w-full p-2 border rounded-lg resize-none"
                 required
-              />
+              ></textarea>
+              <div class="flex justify-end">
+                <button
+                  type="submit"
+                  class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                >
+                  Post Comment
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Comments section -->
+          <div v-if="showComments[post.id]" class="mt-4">
+            <div class="mt-4 border-t pt-4">
+              <h3 class="text-lg font-semibold mb-2">Comments</h3>
+              
+              <!-- Comments list -->
+              <div v-if="post.comments?.length" class="space-y-4">
+                <div v-for="comment in post.comments" :key="comment.id" class="p-4 border rounded-lg bg-white">
+                  <div v-if="editingComment?.id === comment.id">
+                    <textarea
+                      v-model="editingComment.content"
+                      class="w-full p-2 border rounded-lg resize-none h-16 mb-2"
+                    />
+                    <div class="flex gap-2">
+                      <button
+                        @click="updateComment(post.id, comment.id)"
+                        class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+                      >
+                        Save
+                      </button>
+                      <button
+                        @click="cancelCommentEdit"
+                        class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                  <div v-else>
+                    <!-- Comment header -->
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <p class="font-medium text-gray-900">{{ comment.username }}</p>
+                        <p class="text-sm text-gray-500">{{ formatDate(comment.createdAt) }}</p>
+                      </div>
+                      <div class="flex flex-col gap-2">
+                        <!-- Comment Like/Dislike buttons -->
+                        <div v-if="comment.userId !== currentUserId" class="flex gap-2 items-center">
+                          <button 
+                            @click="handleCommentLike(comment.id, 1)"
+                            class="px-3 py-1.5 rounded transition-colors"
+                            :class="{ 
+                              'bg-blue-100 text-blue-600': comment.userLikeValue === 1,
+                              'bg-gray-50 hover:bg-gray-100': comment.userLikeValue !== 1
+                            }"
+                          >
+                            👍
+                          </button>
+                          <span class="font-medium" :class="{
+                            'text-blue-600': comment.likeCount > 0,
+                            'text-red-600': comment.likeCount < 0
+                          }">
+                            {{ comment.likeCount }}
+                          </span>
+                          <button 
+                            @click="handleCommentLike(comment.id, -1)"
+                            class="px-3 py-1.5 rounded transition-colors"
+                            :class="{ 
+                              'bg-red-100 text-red-600': comment.userLikeValue === -1,
+                              'bg-gray-50 hover:bg-gray-100': comment.userLikeValue !== -1
+                            }"
+                          >
+                            👎
+                          </button>
+                        </div>
+                        <!-- Show rating for own comments -->
+                        <div v-else class="text-center">
+                          <span class="font-medium" :class="{
+                            'text-blue-500': comment.likeCount > 0,
+                            'text-red-500': comment.likeCount < 0
+                          }">
+                            Rating: {{ comment.likeCount }}
+                          </span>
+                        </div>
+                        <!-- Edit/Delete buttons -->
+                        <div v-if="comment.userId === currentUserId" class="flex gap-2">
+                          <button
+                            @click="startCommentEdit(comment)"
+                            class="px-3 py-1.5 rounded bg-gray-50 text-blue-500 hover:bg-gray-100 transition-colors"
+                            title="Edit comment"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            @click="deleteComment(post.id, comment.id)"
+                            class="px-3 py-1.5 rounded bg-gray-50 text-red-500 hover:bg-gray-100 transition-colors"
+                            title="Delete comment"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Comment content with warning and improvement -->
+                    <div class="space-y-2">
+                      <p v-if="comment.sentiment === 'hate_speech'" 
+                         class="bg-red-50 text-red-600 p-4 rounded-lg mb-2 flex items-center gap-2">
+                        ⚠️ <span>This comment has been flagged as hate speech and is only visible to you</span>
+                      </p>
+                      <p class="text-gray-800 whitespace-pre-wrap">{{ comment.content }}</p>
+                      
+                      <!-- Show correction only to comment creator -->
+                      <p v-if="comment.correction && comment.userId === currentUserId" 
+                         class="bg-blue-50 text-blue-600 p-2 rounded-lg text-sm mt-2">
+                        💡 Suggested improvement: {{ comment.correction }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add comment button -->
               <button
-                type="submit"
-                class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                @click="toggleAddComment(post.id)"
+                class="mt-4 text-blue-500 hover:text-blue-600 text-sm font-medium flex items-center gap-2"
               >
-                Comment
+                <span>Add a comment</span>
+                <span class="text-xs" v-if="showAddComment[post.id]">▼</span>
+                <span class="text-xs" v-else>▶</span>
               </button>
+
+              <!-- Add comment form -->
+              <form 
+                v-if="showAddComment[post.id]"
+                @submit.prevent="addComment(post.id)" 
+                class="mt-4"
+              >
+                <div class="space-y-2">
+                  <textarea
+                    v-model="newComments[post.id]"
+                    rows="2"
+                    placeholder="Write your comment..."
+                    class="w-full p-2 border rounded-lg resize-none"
+                    required
+                  ></textarea>
+                  <button
+                    type="submit"
+                    class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                  >
+                    Post Comment
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
@@ -152,6 +325,34 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  middleware: ['auth']
+})
+
+const router = useRouter()
+
+// Check authentication
+const checkAuth = () => {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    router.push('/login')
+    return false
+  }
+  return true
+}
+
+// Add authentication checks
+onMounted(() => {
+  if (!checkAuth()) return
+})
+
+// Watch for token removal
+watch(() => localStorage.getItem('token'), (newToken) => {
+  if (!newToken) {
+    router.push('/login')
+  }
+})
+
 const { baseUrl } = useApi()
 const newPostContent = ref('')
 const editingPost = ref<{ id: number; content: string } | null>(null)
@@ -165,15 +366,65 @@ const currentUserId = computed(() => {
 const newComments = ref<Record<number, string>>({})
 const editingComment = ref<{ id: number; content: string } | null>(null)
 
+// Add reactive ref for tracking shown comments
+const showComments = ref<Record<number, boolean>>({})
+
+// Add reactive ref for tracking shown add comment forms
+const showAddComment = ref<Record<number, boolean>>({})
+
+// Add reactive ref for quick comment form
+const showQuickComment = ref<Record<number, boolean>>({})
+
+// Toggle comments visibility
+const toggleComments = (postId: number) => {
+  showComments.value[postId] = !showComments.value[postId]
+  // Close quick comment if opening comments
+  if (showComments.value[postId]) {
+    showQuickComment.value[postId] = false
+  }
+}
+
+// Toggle add comment form visibility
+const toggleAddComment = (postId: number) => {
+  showAddComment.value[postId] = !showAddComment.value[postId]
+}
+
+// Toggle quick comment form
+const toggleQuickComment = (postId: number) => {
+  showQuickComment.value[postId] = !showQuickComment.value[postId]
+  // Close comments section if opening quick comment
+  if (showQuickComment.value[postId]) {
+    showComments.value[postId] = false
+  }
+}
+
 // Fetch posts
-const { pending, data: posts, error, refresh } = await useFetch<Array<{
+interface Post {
   id: number
   userId: number
   content: string
   username: string
   createdAt: string
-  comments: Array<any>
-}>>(`${baseUrl}/api/posts`, {
+  sentiment?: 'ok' | 'hate_speech';
+  correction?: string
+  comments: Array<Comment>
+  likeCount: number
+  userLikeValue?: number
+}
+
+interface Comment {
+  id: number
+  userId: number
+  content: string
+  username: string
+  createdAt: string
+  sentiment?: 'ok' | 'hate_speech';
+  correction?: string
+  likeCount: number
+  userLikeValue?: number
+}
+
+const { pending, data: posts, error, refresh } = await useFetch<Array<Post>>(`${baseUrl}/api/posts`, {
   headers: {
     'Authorization': `Bearer ${localStorage.getItem('token')}`
   }
@@ -240,18 +491,28 @@ const deletePost = async (id: number) => {
       },
     })
     
-    if (response.ok) {
-      await refresh()
-    } else {
-      console.error('Failed to delete post')
+    if (!response.ok) {
+      throw new Error('Failed to delete post')
     }
+
+    // Remove post from local state immediately
+    if (posts.value) {
+      posts.value = posts.value.filter(post => post.id !== id)
+    }
+    
+    // Refresh data from server
+    await refresh()
   } catch (e) {
     console.error('Error deleting post:', e)
+    alert('Failed to delete post. Please try again.')
   }
 }
 
 // Add comment with debug logging
 const addComment = async (postId: number) => {
+  // Show comments section when adding a comment
+  showComments.value[postId] = true
+  
   console.log('Attempting to add comment to post:', postId)
   try {
     const response = await fetch(`${baseUrl}/api/posts/${postId}/comments`, {
@@ -271,6 +532,9 @@ const addComment = async (postId: number) => {
 
     console.log('Comment added successfully')
     newComments.value[postId] = ''
+    // Reset and hide both forms after successful comment
+    showQuickComment.value[postId] = false
+    showAddComment.value[postId] = false
     refresh()
   } catch (e) {
     console.error('Error adding comment:', e)
@@ -323,6 +587,99 @@ const deleteComment = async (postId: number, commentId: number) => {
     refresh()
   } catch (e) {
     console.error('Error deleting comment:', e)
+  }
+}
+
+// Handle post likes with unified counter
+const handleLike = async (postId: number, value: number) => {
+  if (!posts.value) return
+  const post = posts.value.find(p => p.id === postId)
+  if (!post) return
+
+  // Don't allow liking own posts
+  if (post.userId === currentUserId.value) {
+    return
+  }
+
+  // Get current user's like value
+  const currentValue = post.userLikeValue || 0
+
+  // If clicking same button, remove the like
+  const newValue = currentValue === value ? 0 : value
+
+  try {
+    const response = await fetch(`${baseUrl}/api/likes`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ postId, value: newValue }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      if (error.message) {
+        alert(error.message)
+      }
+      return
+    }
+
+    // Update local state
+    post.userLikeValue = newValue
+    const data = await response.json()
+    post.likeCount = data.likeCount
+  } catch (e) {
+    console.error('Error handling like:', e)
+  }
+}
+
+// Handle comment likes
+const handleCommentLike = async (commentId: number, value: number) => {
+  if (!posts.value) return
+  
+  // Find the comment in the posts
+  let targetComment = null
+  for (const post of posts.value) {
+    const comment = post.comments.find(c => c.id === commentId)
+    if (comment) {
+      targetComment = comment
+      break
+    }
+  }
+  
+  if (!targetComment || targetComment.userId === currentUserId.value) return
+
+  // Get current user's like value
+  const currentValue = targetComment.userLikeValue || 0
+
+  // If clicking same button, remove the like
+  const newValue = currentValue === value ? 0 : value
+
+  try {
+    const response = await fetch(`${baseUrl}/api/comments/likes`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ commentId, value: newValue }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      if (error.message) {
+        alert(error.message)
+      }
+      return
+    }
+
+    // Update local state
+    targetComment.userLikeValue = newValue
+    const data = await response.json()
+    targetComment.likeCount = data.likeCount
+  } catch (e) {
+    console.error('Error handling comment like:', e)
   }
 }
 

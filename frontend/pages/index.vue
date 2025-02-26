@@ -1,19 +1,12 @@
 <template>
-  <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">Your Feed</h1>
-    <div>
-      {{ posts.data }}
-    </div>
-  </div>
+  <div>Loading...</div>
 </template>
 
 <script setup lang="ts">
-  const { baseUrl } = useApi()
-  const posts = await useFetch(`${baseUrl}/api/posts`)
-  const router = useRouter()
+const router = useRouter()
 
-  // Redirect to register page
-  onMounted(() => {
-    router.replace('/register')
-  })
+// Redirect to login page
+onMounted(() => {
+  router.replace('/login')
+})
 </script>
