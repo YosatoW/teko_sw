@@ -37,7 +37,14 @@
     "nuxt-app"
   ],
   "scripts": {
+<<<<<<< HEAD
     "show-sentiments": "ts-node src/commands/show-sentiments.ts"
   },
   "private": true
+=======
+    "show-sentiments": "ts-node src/commands/show-sentiments.ts",
+    "test:cache": "bun test ./src/services/__tests__/cache.test.ts",
+    "test:cache:watch": "bun test --watch ./src/services/__tests__/cache.test.ts"
+  }
+>>>>>>> 35f6b0c333e44bfbbcca279557f02e8c439ffeb4
 }

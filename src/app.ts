@@ -1,9 +1,11 @@
 import express from 'express'
 import cors from 'cors'
 
+
 import { initializeAPI } from './api'
 import { initializeMessageBroker } from './message-broker'
 import { initializeCache } from './services/cache'
+
 
 // Server initialisieren
 export const SERVER_ROLE = process.env.SERVER_ROLE || 'all'
