@@ -40,6 +40,7 @@ services:
       OLLAMA_HOST: http://ollama:11434
       REDIS_HOST: redis
       SERVER_ROLE: api
+      CACHE_ACTIVE: true
     volumes:
       - ./docker-data/postgres_db:/var/lib/postgresql/data
 
@@ -52,6 +53,7 @@ services:
       OLLAMA_HOST: http://ollama:11434
       REDIS_HOST: redis
       SERVER_ROLE: api
+      CACHE_ACTIVE: true
     volumes:
       - ./docker-data/postgres_db:/var/lib/postgresql/data
 
@@ -64,6 +66,7 @@ services:
       OLLAMA_HOST: http://ollama:11434
       REDIS_HOST: redis
       SERVER_ROLE: worker
+      CACHE_ACTIVE: true
     volumes:
       - ./docker-data/postgres_db:/var/lib/postgresql/data
 

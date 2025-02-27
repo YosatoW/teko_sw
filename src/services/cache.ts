@@ -9,6 +9,7 @@ let redis: IORedis
 
 // Add initialization in app.ts
 export const initializeCache = async () => {
+  console.log('Cache status:', CACHE_ACTIVE ? 'Active' : 'Inactive')
   if (redis || !CACHE_ACTIVE) return
   console.log('Initializing Redis Cache...')
   redis = new IORedis({
