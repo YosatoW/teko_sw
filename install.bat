@@ -1,6 +1,5 @@
 @echo off
 echo Starte Bun-Installation...
-bun init -y
 
 bun install
 bun update

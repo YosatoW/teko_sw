@@ -18,11 +18,11 @@
     "@types/jsonwebtoken": "^9.0.9",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
-    "bullmq": "^5.41.6",
+    "bullmq": "^5.41.7",
     "chalk": "^4.1.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.39.3",
+    "drizzle-orm": "^0.40.0",
     "express": "^4.21.2",
     "ioredis": "^5.5.0",
     "jsonwebtoken": "^9.0.2",
@@ -37,6 +37,8 @@
     "nuxt-app"
   ],
   "scripts": {
-    "show-sentiments": "ts-node src/commands/show-sentiments.ts"
+    "show-sentiments": "ts-node src/commands/show-sentiments.ts",
+    "test:cache": "bun test ./src/services/__tests__/cache.test.ts",
+    "test:cache:watch": "bun test --watch ./src/services/__tests__/cache.test.ts"
   }
 }
