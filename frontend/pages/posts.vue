@@ -114,7 +114,7 @@
             </div>
           </div>
           
-          <!-- Post content with warning -->
+          <!-- Post content with warning and improvement -->
           <div class="space-y-2">
             <p v-if="post.sentiment === 'hate_speech'" 
                class="bg-red-50 text-red-600 p-4 rounded-lg mb-2 flex items-center gap-2">
@@ -122,8 +122,8 @@
             </p>
             <p class="text-gray-800 whitespace-pre-wrap">{{ post.content }}</p>
             
-            <!-- Show correction if available -->
-            <p v-if="post.correction" 
+            <!-- Show correction only to post creator -->
+            <p v-if="post.correction && post.userId === currentUserId" 
                class="bg-blue-50 text-blue-600 p-2 rounded-lg text-sm mt-2">
               💡 Suggested improvement: {{ post.correction }}
             </p>
@@ -266,7 +266,7 @@
                         </div>
                       </div>
                     </div>
-                    <!-- Comment content with warning -->
+                    <!-- Comment content with warning and improvement -->
                     <div class="space-y-2">
                       <p v-if="comment.sentiment === 'hate_speech'" 
                          class="bg-red-50 text-red-600 p-4 rounded-lg mb-2 flex items-center gap-2">
@@ -274,8 +274,8 @@
                       </p>
                       <p class="text-gray-800 whitespace-pre-wrap">{{ comment.content }}</p>
                       
-                      <!-- Show correction if available -->
-                      <p v-if="comment.correction" 
+                      <!-- Show correction only to comment creator -->
+                      <p v-if="comment.correction && comment.userId === currentUserId" 
                          class="bg-blue-50 text-blue-600 p-2 rounded-lg text-sm mt-2">
                         💡 Suggested improvement: {{ comment.correction }}
                       </p>
