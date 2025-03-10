@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center px-4 py-8">
+  <div class="min-h-screen bg-gradient-to-br from-black-100 via-black-800 to-black-900 flex items-center justify-center px-4 py-8">
     <div class="w-full max-w-md shadow-2xl">
       <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100">
         <div class="p-8">

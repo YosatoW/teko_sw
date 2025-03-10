@@ -2,7 +2,7 @@
   <div class="container mx-auto p-4 mt-16">
     <!-- Create new post section -->
     <div class="mb-8 p-6 border rounded-2xl bg-white">
-      <h2 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-4">Create New Post</h2>
+      <h2 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 mb-4">Create New Post</h2>
       <form @submit.prevent="createPost" class="space-y-4">
         <textarea
           v-model="newPostContent"
@@ -23,7 +23,7 @@
     <div v-if="pending">Loading...</div>
     <div v-else-if="error">Error loading posts</div>
     <div v-else class="space-y-4">
-      <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-4">Posts</h1>
+      <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-900">Posts</h1>
       <div v-for="post in posts" :key="post.id" class="p-6 border rounded-2xl bg-white">
         <!-- Edit mode -->
         <div v-if="editingPost?.id === post.id">
@@ -51,7 +51,7 @@
           <!-- Post header -->
           <div class="flex justify-between items-start">
             <div>
-              <p class="font-medium text-gray-900">{{ post.username }}</p>
+              <p class="font-bold text-gray-900">{{ post.username }}</p>
               <p class="text-sm text-gray-500">{{ formatDate(post.createdAt) }}</p>
             </div>
             <!-- Action buttons column -->
