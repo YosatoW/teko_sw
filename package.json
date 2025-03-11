@@ -32,6 +32,9 @@
     "nuxt-app": "./frontend",
     "ollama": "^0.5.14",
     "pg": "^8.13.3",
+    "pino": "^9.6.0",
+    "pino-http": "^10.4.0",
+    "pino-pretty": "^13.0.0",
     "zod": "^3.24.2",
     "zod-to-json-schema": "^3.24.3"
   },
