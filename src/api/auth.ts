@@ -1,6 +1,6 @@
 import { type Express, type Request, type Response } from 'express';
 import {eq} from 'drizzle-orm';
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken' 
 
 import {db} from '../database';
