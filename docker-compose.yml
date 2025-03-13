@@ -85,3 +85,15 @@ services:
       - 8001:8001 # Redits Webinterface
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3100:3000"

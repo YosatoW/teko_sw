@@ -1,6 +1,7 @@
 import { Ollama } from 'ollama'
 import { z } from 'zod'
 import zodToJsonSchema from 'zod-to-json-schema'
+import { logger } from '../services/logger'
 
 // Test other models from ollama
 // ⚠️ Not more than 7 billion parameters ⚠️
@@ -10,16 +11,16 @@ export let ollama: Ollama
 
 export const initializeOllama = async () => {
   if (ollama) return
-  console.log('Initializing Ollama...')
+  logger.info('Initializing Ollama...')
   const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:12434'
-  console.log('Initializing Ollama with model:', OLLAMA_MODEL)
-  console.log('using Ollama host:', OLLAMA_HOST)
+  logger.info('Initializing Ollama with model:', OLLAMA_MODEL)
+  logger.info('using Ollama host:', OLLAMA_HOST)
   ollama = new Ollama({
     host: OLLAMA_HOST, 
   })
   // This will pull the model from the server
   // ⚠️ Can take a few minutes ⚠️
-  console.log('Pulling model from server... This can take a few minutes')
+  logger.info('Pulling model from server... This can take a few minutes')
   await ollama.pull({ model: OLLAMA_MODEL })
 }
 
@@ -32,7 +33,7 @@ const TextAnalysisResult = z.object({
 
 export async function textAnalysis(text: string) {
   await initializeOllama()
-  console.log('Analyzing text:', text)
+  logger.info('Analyzing text:', text)
 
   const prompt = `
 Analyze the following text for inappropriate content.
@@ -60,7 +61,7 @@ Text to analyze: "${text}"
       format: zodToJsonSchema(TextAnalysisResult),
     })
 
-    console.log('Analysis result:', response.message.content)
+    logger.info('Analysis result:', response.message.content)
     return JSON.parse(response.message.content) as z.infer<typeof TextAnalysisResult>
   } catch (error) {
     console.error('Analysis failed:', error)

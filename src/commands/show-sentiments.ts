@@ -2,6 +2,7 @@ import { db } from '../database'
 import { postsTable, commentsTable, usersTable } from '../db/schema'
 import { desc, eq } from 'drizzle-orm'
 import chalk from 'chalk'
+import { logger } from '../services/logger'
 
 const showSentiments = async () => {
     try {
@@ -18,16 +19,16 @@ const showSentiments = async () => {
             .leftJoin(usersTable, eq(postsTable.userId, usersTable.id))
             .orderBy(desc(postsTable.createdAt))
 
-        console.log(chalk.bold('\n=== Posts Sentiment Analysis ===\n'))
+        logger.info(chalk.bold('\n=== Posts Sentiment Analysis ===\n'))
 
         for (const post of posts) {
-            console.log(chalk.bold('Post #' + post.id + ' by ' + post.username))
-            console.log('Content:', post.content)
-            console.log('Sentiment:', getSentimentColor(post.sentiment))
+            logger.info(chalk.bold('Post #' + post.id + ' by ' + post.username))
+            logger.info('Content:', post.content)
+            logger.info('Sentiment:', getSentimentColor(post.sentiment))
             if (post.correction) {
-                console.log('Suggestion:', chalk.blue(post.correction))
+                logger.info('Suggestion:', chalk.blue(post.correction))
             }
-            console.log('---')
+            logger.info('---')
 
             // Fetch comments for this post
             const comments = await db
@@ -44,18 +45,18 @@ const showSentiments = async () => {
                 .orderBy(desc(commentsTable.createdAt))
 
             if (comments.length > 0) {
-                console.log(chalk.bold('Comments:'))
+                logger.info(chalk.bold('Comments:'))
                 for (const comment of comments) {
-                    console.log(`  └─ #${comment.id} by ${comment.username}`)
-                    console.log('     Content:', comment.content)
-                    console.log('     Sentiment:', getSentimentColor(comment.sentiment))
+                    logger.info(`  └─ #${comment.id} by ${comment.username}`)
+                    logger.info('     Content:', comment.content)
+                    logger.info('     Sentiment:', getSentimentColor(comment.sentiment))
                     if (comment.correction) {
-                        console.log('     Suggestion:', chalk.blue(comment.correction))
+                        logger.info('     Suggestion:', chalk.blue(comment.correction))
                     }
                 }
-                console.log()
+                logger.info()
             }
-            console.log('================\n')
+            logger.info('================\n')
         }
     } catch (error) {
         console.error('Error fetching sentiment data:', error)

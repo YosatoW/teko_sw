@@ -5,6 +5,7 @@ import { postsTable, commentsTable } from '../db/schema'
 import { eq } from 'drizzle-orm'
 import { textAnalysis } from '../services/ai'
 import { SERVER_ROLE } from '../app'
+import { logger } from '../services/logger'
 
 
 let sentimentQueue: Queue 
@@ -25,10 +26,10 @@ export const initializeMessageBroker = () => {
     new Worker('comment-sentiment', analyzeCommentSentiment, { connection })
     
     sentimentQueue = new Queue('sentiment', { connection })
-    console.log('Message broker initialized')
+    logger.info('Message broker initialized')
     if (SERVER_ROLE === 'all' || SERVER_ROLE === 'worker') {
         sentimentWorker = new Worker('sentiment', analyzeSentiment, { connection })
-        console.log('Sentiment worker initialized')
+        logger.info('Sentiment worker initialized')
     }
 }
 
@@ -56,7 +57,7 @@ const analyzeSentiment = async (job: Job) => {
             })
             .where(eq(postsTable.id, postId))
 
-        console.log(`Sentiment analysis completed for post ${postId}`)
+        logger.info(`Sentiment analysis completed for post ${postId}`)
     } catch (error) {
         console.error('Error in sentiment analysis:', error)
         throw error
@@ -87,7 +88,7 @@ const analyzeCommentSentiment = async (job: Job) => {
             })
             .where(eq(commentsTable.id, commentId))
 
-        console.log(`Sentiment analysis completed for comment ${commentId}`)
+        logger.info(`Sentiment analysis completed for comment ${commentId}`)
     } catch (error) {
         console.error('Error in comment sentiment analysis:', error)
         throw error

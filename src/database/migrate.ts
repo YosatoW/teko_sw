@@ -1,5 +1,6 @@
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
 import { db } from '../database'
+import { logger } from '../services/logger'
 
 // Update timestamps for existing records
 const updateTimestamps = async () => {
@@ -19,7 +20,7 @@ const main = async () => {
   try {
     await migrate(db, { migrationsFolder: 'drizzle' })
     await updateTimestamps()
-    console.log('Migrations completed')
+    logger.info('Migrations completed')
   } catch (error) {
     console.error('Error running migrations:', error)
     process.exit(1)

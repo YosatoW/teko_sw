@@ -2,6 +2,7 @@ import { desc, eq } from 'drizzle-orm'
 import { db } from '../database'
 import { postsTable, usersTable, commentsTable, likesTable } from '../db/schema'
 import IORedis from 'ioredis'
+import { logger } from '../services/logger'
 
 const CACHE_ACTIVE = (process.env.CACHE_ACTIVE || 'true') === 'true'
 
@@ -10,13 +11,13 @@ let redis: IORedis
 // Add initialization in app.ts
 export const initializeCache = async () => {
   if (redis || !CACHE_ACTIVE) return
-  console.log('Initializing Redis Cache...')
+  logger.info('Initializing Redis Cache...')
   redis = new IORedis({
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379'),
     maxRetriesPerRequest: null,
   })
-  console.log('Redis Cache initialized')
+  logger.info('Redis Cache initialized')
 }
 
 type Posts = Awaited<ReturnType<typeof getPostsFromDB>>
@@ -212,7 +213,7 @@ export const invalidateCache = async () => {
       redis.del('comments'),
       redis.del('likes')
     ])
-    console.log('Cache invalidated for all tables')
+    logger.info('Cache invalidated for all tables')
   } catch (error) {
     console.error('Error invalidating cache:', error)
   }
@@ -221,7 +222,7 @@ export const invalidateCache = async () => {
 export const invalidatePostsCache = async () => {
   if (!CACHE_ACTIVE || !redis) return
   try {
-    console.log('invalidating posts cache...')
+    logger.info('invalidating posts cache...')
     await redis.del('posts')
   } catch (error) {
     console.error('Error invalidating posts cache:', error)
