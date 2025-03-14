@@ -9,7 +9,7 @@
 	vacuum:										21.76 s			29.24 s			
 	primary keys:	 							36.52 s			39.56 s			
 
-![PostgresSQL: Database initialization](images/Database%20initialization.png)
+![PostgresSQL: Database initialization](images/Databaseinitialization.png)
 
 ## performance_tests
 												Blerti:			Chien:			Wattana:
@@ -84,22 +84,22 @@
 	default ✓					50 VUs  00m14.1s/10m0s  100000/100000 shared iters
 
 ### Wattana:
-checks:						
-data_received:				
-data_sent:					
-http_req_blocked:			
-http_req_connecting:		
-http_req_duration:			
-http_req_failed:			100.00%		100000 out of 100000
-http_req_receiving:			
-http_req_sending:			
-http_req_tls_handshaking:	
-http_req_waiting:			
-http_reqs:					
-iteration_duration:			
-iterations:					
-running:					
-default ✓					
+	checks:						
+	data_received:				
+	data_sent:					
+	http_req_blocked:			
+	http_req_connecting:		
+	http_req_duration:			
+	http_req_failed:			100.00%		100000 out of 100000
+	http_req_receiving:			
+	http_req_sending:			
+	http_req_tls_handshaking:	
+	http_req_waiting:			
+	http_reqs:					
+	iteration_duration:			
+	iterations:					
+	running:					
+	default ✓					
 
 
 ## load-test | CACHE_ACTIVE = "false"
