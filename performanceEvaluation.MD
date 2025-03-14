@@ -9,7 +9,7 @@
 	vacuum:										21.76 s			29.24 s			
 	primary keys:	 							36.52 s			39.56 s			
 
-![alt text](image.png)
+![PostgresSQL: Database initialization](images/Database%20initialization.png)
 
 ## performance_tests
 												Blerti:			Chien:			Wattana:
