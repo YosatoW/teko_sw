@@ -2,16 +2,16 @@
 
 ## pgbench -U postgres -d performance_tests
 	performance_tests -i -s 100					Blerti:			Chien:			Wattana:
-	done in:									310.96 s		230.67 s		
-	drop tables:								0.01 s			0.00 s			
-	create tables:								0.06 s			0.04 s			
-	client-side generate:						252.61 s		161.83 s		
-	vacuum:										21.76 s			29.24 s			
-	primary keys:	 							36.52 s			39.56 s			
+	done in:									310.96 s		230.67 s		116.15 s
+	drop tables:								0.01 s			0.00 s			0.45
+	create tables:								0.06 s			0.04 s			0.04 s
+	client-side generate:						252.61 s		161.83 s		82.06 s
+	vacuum:										21.76 s			29.24 s			10.44 s
+	primary keys:	 							36.52 s			39.56 s			23.17 s
 
 #### Evaluation diagram: PostgresSQL: Database initialization
-![PostgresSQL: Database initialization](images/Databaseinitialization.png)	
-![PostgresSQL: Database initialization](images/Databaseinitialization2.png)
+![PostgresSQL: Database initialization](images/databaseinitialization.png)	
+![PostgresSQL: Database initialization](images/databaseinitialization2.png)
 
 ## performance_tests
 												Blerti:			Chien:			Wattana:
@@ -23,12 +23,12 @@
 	number of transactions per client:			10				10				10
 	number of transactions actually processed:	10/10			10/10			10/10
 	number of failed transactions:				0 (0.000%)		0 (0.000%)		0 (0.000%)
-	latency average:							16.677 ms		6.323 ms		
-	initial connection time:					50.769 ms		49.497 ms		
-	tps(without initial connection time):		59.962463		158.147773		
+	latency average:							16.677 ms		6.323 ms		4.141 ms
+	initial connection time:					50.769 ms		49.497 ms		73.932 ms
+	tps(without initial connection time):		59.962463		158.147773		212.571477	
 
 #### Evaluation diagram: Performance in the single-client
-![Performance in the single-client](images/Databaseinitialization.png)
+![Performance in the single-client](images/PerformanceSingleClint.png)
 ![Performance in the single-client](images/PerformanceSingleClint2.png)	
 
 ## performance_tests -c 50 -t 10000
@@ -41,12 +41,12 @@
 	number of transactions per client:			10000			10000			10000
 	number of transactions actually processed:	500000/500000	500000/500000	500000/500000
 	number of failed transactions:				0 (0.000%)		0 (0.000%)		0 (0.000%)
-	latency average:							23.486 ms		17.352 ms		
-	initial connection time:					2463.641 ms		837.051 ms		
-	tps(without initial connection time):		2128.873132		2881.435300		
+	latency average:							23.486 ms		17.352 ms		13.530 ms
+	initial connection time:					2463.641 ms		837.051 ms		673.834 ms
+	tps(without initial connection time):		2128.873132		2881.435300		3695.375750
 
 #### Evaluation diagram: Performance in the multi-client
-![Performance in the multi-client (50 clients, 500,000 transactions)](images/Databaseinitialization.png)
+![Performance in the multi-client (50 clients, 500,000 transactions)](images/PerformanceMultiClint.png)
 ![Performance in the multi-client (50 clients, 500,000 transactions)](images/PerformanceMultiClint2.png)
 
 ## load-test | CACHE_ACTIVE = "true"
@@ -93,27 +93,25 @@
 	default ✓					50 VUs  		00m14.1s/10m0s	100000/100000 shared iters
 
 ### Wattana:
-	checks:						
-	data_received:				
-	data_sent:					
-	http_req_blocked:			
-	http_req_connecting:		
-	http_req_duration:			
-	http_req_failed:			
-	http_req_receiving:			
-	http_req_sending:			
-	http_req_tls_handshaking:	
-	http_req_waiting:			
-	http_reqs:					
-	iteration_duration:			
-	iterations:					
-	running:					
-	default ✓					
-
+	checks:						0.00%			0 out of 100000
+	data_received:				31 MB			3.1 MB/s
+	data_sent:					8.7 MB			858 kB/s
+	http_req_blocked:			avg=9.39µs		min=0s			med=0s			max=13.57ms		p(90)=0s		p(95)=0s
+	http_req_connecting:		avg=1.27µs		min=0s			med=0s			max=3.87ms		p(90)=0s		p(95)=0s
+	http_req_duration:			avg=1.92ms		min=0s			med=1.61ms		max=8.03s		p(90)=2.67ms	p(95)=3.15ms
+	http_req_failed:			100.00%			100000 out of 100000
+	http_req_receiving:			avg=40.6µs		min=0s			med=0s			max=5.16ms		p(90)=0s		p(95)=522.4µs
+	http_req_sending:			avg=12.13µs		min=0s			med=0s			max=4.24ms		p(90)=0s		p(95)=0s
+	http_req_tls_handshaking:	avg=0s			min=0s			med=0s			max=0s			p(90)=0s		p(95)=0s
+	http_req_waiting:			avg=1.86ms		min=0s			med=1.59ms		max=8.03s		p(90)=2.64ms	p(95)=2.98ms
+	http_reqs:					100000			9863.302129/s
+	iteration_duration:			avg=2ms			min=0s			med=1.63ms		max=8.04s		p(90)=2.72ms	p(95)=3.23ms
+	iterations:					100000			9863.302129/s
+	running:					(00m10.1s)		00/50 VUs		100000 complete and 0 interrupted iterations
+	default ✓					50 VUs			00m10.1s/10m0s	100000/100000 shared iters				
 
 #### Evaluation diagram: Load-Test with Caches
-![Load-Test with Caches](images/Databaseinitialization.png)
-![Load-Test with Caches](images/LoadTestWithCaches2.png)
+![Load-Test with Caches](images/LoadTestWithCaches.png)
 
 ## load-test | CACHE_ACTIVE = "false"
 
@@ -154,30 +152,31 @@
 	default ✓					50 VUs			00m30.9s/10m0s	100000/100000 shared iters
 
 ### Wattana:
-	checks:						
-	data_received:				
-	data_sent:					
-	http_req_blocked:			
-	http_req_connecting:		
-	http_req_duration:			
-	http_req_failed:			
-	http_req_receiving:			
-	http_req_sending:			
-	http_req_tls_handshaking:	
-	http_req_waiting:			
-	http_reqs:					
-	iteration_duration:			
-	iterations:					
-	running:					
-	default ✓					
+	checks:						0.00%			0 out of 100000
+	data_received:				31 MB			2.7 MB/s
+	data_sent:					8.7 MB			755 kB/s
+	http_req_blocked:			avg=8.76µs		min=0s			med=0s			max=12.67ms		p(90)=0s		p(95)=0s
+	http_req_connecting:		avg=1.33µs		min=0s			med=0s			max=4.13ms		p(90)=0s		p(95)=0s
+	http_req_duration:			avg=5.67ms		min=0s			med=1.59ms		max=8.04s		p(90)=2.48ms	p(95)=2.78ms
+	http_req_failed:			100.00%			100000 out of 100000
+	http_req_receiving:			avg=39.05µs		min=0s			med=0s			max=5.84ms		p(90)=0s		p(95)=522.4µs
+	http_req_sending:			avg=11.22µs		min=0s			med=0s			max=3.56ms		p(90)=0s		p(95)=0s
+	http_req_tls_handshaking:	avg=0s			min=0s			med=0s			max=0s			p(90)=0s		p(95)=0s
+	http_req_waiting:			avg=5.62ms		min=0s			med=1.58ms		max=8.04s		p(90)=2.32ms	p(95)=2.72ms
+	http_reqs:					100000			8676.620874/s
+	iteration_duration:			avg=5.75ms		min=0s			med=1.6ms		max=8.05s		p(90)=2.64ms	p(95)=2.92ms
+	iterations:					100000			8676.620874/s
+	running:					(00m11.5s)		00/50 VUs		100000 complete and 0 interrupted iterations    
+	default ✓					50 VUs			00m11.5s/10m0s	100000/100000 shared iters 				
 
 #### Evaluation diagram: Load-Test without Caches
-![Load-Test without Caches](images/Databaseinitialization.png)
-![Load-Test without Caches](images/LoadTestWithoutCaches2.png)
+
+![Load-Test without Caches](images/LoadTestWithoutCaches.png)
+![alt text](images/ToDo.png)
 
 #### Evaluation diagram: Load-Test with and without Caches
-![Load-Test with and without Caches](images/Databaseinitialization.png)
-![Load-Test with and without Caches](images/LoadTestWithAndWithoutCaches2.png)
+![Load-Test with and without Caches](images/LoadTestWithAndWithoutCaches.png)
+![alt text](images/ToDo.png)
 
 ## stress-test | CACHE_ACTIVE = "true"
 	scenarios: (100.00%) 1 scenario, 2000 max VUs, 4m30s max duration (incl. graceful stop):
@@ -206,8 +205,6 @@
 	running:					(0m03.7s)		0000/2000 VUs	1167 complete and 4 interrupted iterations
 	default ✓					0004/2000 VUs	0m03.7s/4m00.0s
  
-
-
 ### Chien:
 		✗ response code was 200
 		↳  0% — ✓ 0 / ✗ 1845
@@ -233,30 +230,29 @@
 
 ### Wattana:
 		✗ response code was 200
-		↳  0% — ✓ 0 / ✗ 1845
+		↳  0% — ✓ 0 / ✗ 8904
 
-	checks:						
-	data_received:				
-	data_sent:					
-	http_req_blocked:			
-	http_req_connecting:		
-	http_req_duration:			
-	http_req_failed:			
-	http_req_receiving:			
-	http_req_sending:			
-	http_req_tls_handshaking:	
-	http_req_waiting:			
-	http_reqs:					
-	iteration_duration:			
-	iterations:					
-	vus:						
-	vus_max:					
-	running:					
-	default ✓					
+	checks:						0.00%			0 out of 8904
+	data_received:				2.8 MB			282 kB/s
+	data_sent:					775 kB			78 kB/s
+	http_req_blocked:			avg=3.34µs		min=0s			med=0s			max=1.58ms		p(90)=0s		p(95)=0s
+	http_req_connecting:		avg=539ns		min=0s			med=0s			max=1.01ms		p(90)=0s		p(95)=0s
+	http_req_duration:			avg=5.45ms		min=0s			med=538.4µs		max=9.11s		p(90)=1.07ms	p(95)=1.1ms
+	http_req_failed:			100.00%			8904 out of 8904
+	http_req_receiving:			avg=27.7µs		min=0s			med=0s			max=7.8ms		p(90)=0s		p(95)=320µs
+	http_req_sending:			avg=7µs			min=0s			med=0s			max=703.7µs		p(90)=0s		p(95)=0s
+	http_req_tls_handshaking:	avg=0s			min=0s			med=0s			max=0s			p(90)=0s		p(95)=0s
+	http_req_waiting:			avg=5.42ms		min=0s			med=536.1µs		max=9.11s		p(90)=1.07ms	p(95)=1.09ms
+	http_reqs:					8904			897.896846/s
+	iteration_duration:			avg=5.52ms		min=0s			med=553.9µs		max=9.11s		p(90)=1.08ms	p(95)=1.13ms
+	iterations:					8904			897.896846/s
+	vus:						9				min=1			max=9
+	vus_max:					2000			min=2000		max=2000
+	running:					(0m09.9s)		0000/2000 VUs	8904 complete and 9 interrupted iterations
+	default ✓					0009/2000 VUs	0m09.9s/4m00.0s  					
 
 #### Evaluation diagram: Stress-Test with Caches
-![Stress-Test with Caches](images/Databaseinitialization.png)
-![Stress-Test with Caches](images/StressTestWithCaches2.png)
+![Stress-Test with Caches](images/StressTestWithCaches.png)
 
 ## stress-test | CACHE_ACTIVE = "false"
 
@@ -308,30 +304,30 @@
 
 ### Wattana:
 		✗ response code was 200
-		
-	checks:						
-	data_received:				
-	data_sent:					
-	http_req_blocked:			
-	http_req_connecting:		
-	http_req_duration:			
-	http_req_failed:			
-	http_req_receiving:			
-	http_req_sending:			
-	http_req_tls_handshaking:	
-	http_req_waiting:			
-	http_reqs:					
-	iteration_duration:			
-	iterations:					
-	vus:						
-	vus_max:					
-	running:					
-	default ✓					
+		↳  0% — ✓ 0 / ✗ 18278
+	checks:						0.00%			0 out of 18278
+	data_received:				3.1 MB			578 kB/s
+	data_sent:					871 kB			160 kB/s
+	http_req_blocked:			avg=3.37µs		min=0s			med=0s			max=2ms			p(90)=0s		p(95)=0s
+	http_req_connecting:		avg=838ns		min=0s			med=0s			max=1.19ms		p(90)=0s		p(95)=0s
+	http_req_duration:			avg=2.63ms		min=0s			med=541.4µs		max=8.03s		p(90)=1.08ms	p(95)=1.11ms
+	http_req_failed:			100.00%			18278 out of 18278
+	http_req_receiving:			avg=30.72µs		min=0s			med=0s			max=1ms			p(90)=0s		p(95)=517.1µs
+	http_req_sending:			avg=7.57µs		min=0s			med=0s			max=1ms			p(90)=0s		p(95)=0s
+	http_req_tls_handshaking:	avg=0s			min=0s			med=0s			max=0s			p(90)=0s		p(95)=0s
+	http_req_waiting:			avg=2.59ms		min=0s			med=538µs		max=8.03s		p(90)=1.07ms		p(95)=1.1ms
+	http_reqs:					18278			1840.707983/s
+	iteration_duration:			avg=2.69ms		min=0s			med=588.79µs	max=8.04s		p(90)=1.09ms	p(95)=1.16ms
+	iterations:					18278			1840.707983/s
+	vus:						9				min=1			max=9
+	vus_max:					2000			min=2000		max=2000
+	running:					(0m09.9s)		0000/2000 VUs	9999 complete and 9 interrupted iterations
+	default ✓					0009/2000 VUs	0m09.9s/4m00.0s				
 
 #### Evaluation diagram: Stress-Test without Caches
-![Stress-Test without Caches](images/Databaseinitialization.png)
-![Stress-Test without Caches](images/StressTestWithoutCaches2.png)
+![Stress-Test without Caches](images/StressTestWithoutCaches.png)
+![alt text](images/ToDo.png)
 
 #### Evaluation diagram: Stress-Test with and without Caches
-![Stress-Test with and without Caches](images/Databaseinitialization.png)
-![Stress-Test with and without Caches](images/StressTestWithAndWithoutCaches2.png)
+![Stress-Test with and without Caches](images/StressTestWithAndWithoutCaches.png)
+![alt text](images/ToDo.png)
