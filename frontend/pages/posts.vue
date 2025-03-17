@@ -1,18 +1,18 @@
 <template>
-  <div class="container mx-auto p-4 mt-16"> <!-- Added mt-16 for header space -->
+  <div class="container mx-auto p-4 mt-16">
     <!-- Create new post section -->
-    <div class="mb-8 p-4 border rounded-lg bg-white">
-      <h2 class="text-xl font-bold mb-4">Create New Post</h2>
+    <div class="mb-8 p-6 border rounded-2xl bg-white">
+      <h2 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 mb-4">Create New Post</h2>
       <form @submit.prevent="createPost" class="space-y-4">
         <textarea
           v-model="newPostContent"
-          class="w-full p-2 border rounded-lg resize-none h-24"
+          class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300 ease-in-out resize-none h-24"
           placeholder="What's on your mind?"
           required
         ></textarea>
         <button
           type="submit"
-          class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          class="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:opacity-90 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]"
         >
           Post
         </button>
@@ -23,24 +23,24 @@
     <div v-if="pending">Loading...</div>
     <div v-else-if="error">Error loading posts</div>
     <div v-else class="space-y-4">
-      <h1 class="text-2xl font-bold mb-4">Posts</h1>
-      <div v-for="post in posts" :key="post.id" class="p-4 border rounded-lg bg-white">
+      <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-900">Posts</h1>
+      <div v-for="post in posts" :key="post.id" class="p-6 border rounded-2xl bg-white">
         <!-- Edit mode -->
         <div v-if="editingPost?.id === post.id">
           <textarea
             v-model="editingPost.content"
-            class="w-full p-2 border rounded-lg resize-none h-24 mb-2"
+            class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300 ease-in-out resize-none h-24 mb-2"
           ></textarea>
           <div class="flex gap-2">
             <button
               @click="updatePost(post.id)"
-              class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+              class="w-full py-2 px-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl hover:opacity-90 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]"
             >
               Save
             </button>
             <button
               @click="cancelEdit"
-              class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600"
+              class="w-full py-2 px-4 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold rounded-xl hover:opacity-90 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]"
             >
               Cancel
             </button>
@@ -51,7 +51,7 @@
           <!-- Post header -->
           <div class="flex justify-between items-start">
             <div>
-              <p class="font-medium text-gray-900">{{ post.username }}</p>
+              <p class="font-bold text-gray-900">{{ post.username }}</p>
               <p class="text-sm text-gray-500">{{ formatDate(post.createdAt) }}</p>
             </div>
             <!-- Action buttons column -->
@@ -159,13 +159,13 @@
                 v-model="newComments[post.id]"
                 rows="2"
                 placeholder="Write your comment..."
-                class="w-full p-2 border rounded-lg resize-none"
+                class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300 ease-in-out resize-none"
                 required
               ></textarea>
               <div class="flex justify-end">
                 <button
                   type="submit"
-                  class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                  class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-xl hover:opacity-90 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Post Comment
                 </button>
@@ -180,22 +180,22 @@
               
               <!-- Comments list -->
               <div v-if="post.comments?.length" class="space-y-4">
-                <div v-for="comment in post.comments" :key="comment.id" class="p-4 border rounded-lg bg-white">
+                <div v-for="comment in post.comments" :key="comment.id" class="p-4 border rounded-2xl bg-white">
                   <div v-if="editingComment?.id === comment.id">
                     <textarea
                       v-model="editingComment.content"
-                      class="w-full p-2 border rounded-lg resize-none h-16 mb-2"
+                      class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300 ease-in-out resize-none h-16 mb-2"
                     />
                     <div class="flex gap-2">
                       <button
                         @click="updateComment(post.id, comment.id)"
-                        class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+                        class="w-full py-2 px-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl hover:opacity-90 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]"
                       >
                         Save
                       </button>
                       <button
                         @click="cancelCommentEdit"
-                        class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600"
+                        class="w-full py-2 px-4 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold rounded-xl hover:opacity-90 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]"
                       >
                         Cancel
                       </button>
@@ -305,12 +305,12 @@
                     v-model="newComments[post.id]"
                     rows="2"
                     placeholder="Write your comment..."
-                    class="w-full p-2 border rounded-lg resize-none"
+                    class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300 ease-in-out resize-none"
                     required
                   ></textarea>
                   <button
                     type="submit"
-                    class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                    class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-xl hover:opacity-90 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98]"
                   >
                     Post Comment
                   </button>

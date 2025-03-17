@@ -1,7 +1,7 @@
 <template>
-  <header class="fixed top-0 left-0 right-0 bg-blue-500 text-white z-10">
+  <header class="fixed top-0 left-0 right-0 bg-[#2C2C2C] text-white z-10">
     <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-      <h1 class="text-2xl">Minitwitter</h1>
+      <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">Minitwitter</h1>
       <div v-if="currentUser" class="flex items-center gap-4">
         <span class="text-sm">Welcome, {{ currentUser.username }}</span>
         <button 
@@ -21,7 +21,7 @@
 
     <!-- Password Change Dialog -->
     <div v-if="showPasswordDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div class="bg-white p-6 rounded-lg w-96">
+      <div class="bg-gradient-to-r from-purple-50 to-pink-100 p-6 rounded-lg w-96">
         <h2 class="text-xl font-bold text-gray-900 mb-4">Change Password</h2>
         <form @submit.prevent="handlePasswordChange" class="space-y-4">
           <div>

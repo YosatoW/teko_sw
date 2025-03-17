@@ -1,44 +1,91 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50">
-    <div class="max-w-md w-full p-6 bg-white rounded-lg border border-gray-200">
-      <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Login</h2>
-      <form @submit.prevent="handleLogin">
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-            Username
-          </label>
-          <input
-            v-model="username"
-            type="text"
-            id="username"
-            class="w-full p-2 border rounded-lg focus:outline-none focus:border-blue-500"
-            required
-          />
+  <div class="min-h-screen bg-gradient-to-br from-black-100 via-black-800 to-black-900 flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-md shadow-2xl">
+      <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100">
+        <div class="p-8">
+          <div class="text-center mb-8">
+            <h2 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
+              Welcome Back
+            </h2>
+            <p class="text-gray-500 mt-2">Sign in to continue</p>
+          </div>
+          
+          <form @submit.prevent="handleLogin" class="space-y-6">
+            <div>
+              <label 
+                for="username" 
+                class="block text-sm font-medium text-gray-700 mb-2 pl-1"
+              >
+                Username
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <input
+                  v-model="username"
+                  type="text"
+                  id="username"
+                  required
+                  class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300 ease-in-out"
+                  placeholder="Enter your username"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label 
+                for="password" 
+                class="block text-sm font-medium text-gray-700 mb-2 pl-1"
+              >
+                Password
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <input
+                  v-model="password"
+                  type="password"
+                  id="password"
+                  required
+                  class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-300 ease-in-out"
+                  placeholder="Enter your password"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:opacity-90 transition duration-300 ease-in-out transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+            >
+              Sign In
+            </button>
+          </form>
+
+          <div v-if="error" class="mt-4 text-center">
+            <p class="text-red-500 bg-red-50 py-2 px-4 rounded-lg border border-red-200">
+              {{ error }}
+            </p>
+          </div>
+
+          <div class="mt-6 text-center">
+            <p class="text-gray-600">
+              Don't have an account?
+              <NuxtLink 
+                to="/register" 
+                class="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition duration-300"
+              >
+                Register here
+              </NuxtLink>
+            </p>
+          </div>
         </div>
-        <div class="mb-6">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-            Password
-          </label>
-          <input
-            v-model="password"
-            type="password"
-            id="password"
-            class="w-full p-2 border rounded-lg focus:outline-none focus:border-blue-500"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600"
-        >
-          Login
-        </button>
-      </form>
-      <p v-if="error" class="mt-4 text-red-500 text-center">{{ error }}</p>
-      <p class="mt-4 text-center text-gray-600">
-        Don't have an account?
-        <NuxtLink to="/register" class="text-blue-500 hover:text-blue-600">Register here</NuxtLink>
-      </p>
+      </div>
     </div>
   </div>
 </template>
