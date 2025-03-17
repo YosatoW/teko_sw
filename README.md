@@ -1,26 +1,82 @@
-# TEKO: Software und Plattform Architektur
+<div align="center">
 
-To install dependencies:
+# 🐦 𝕄𝕚𝕟𝕚𝕋𝕨𝕚𝕥𝕥𝕖𝕣
 
-```bash
+<p align="center">
+  <strong>A lightweight, modern social media platform built with cutting-edge technologies</strong>
+</p>
 
-./install.bat
+[![Built with Bun](https://img.shields.io/badge/Built%20with-Bun-black)](https://bun.sh)
+[![Framework](https://img.shields.io/badge/Framework-Nuxt%203-00DC82)](https://nuxt.com)
+[![Database](https://img.shields.io/badge/Database-PostgreSQL-316192)](https://www.postgresql.org)
 
-```
+</div>
 
-To run:
-Starte den Programm "Docker Desktop"
+## ✨ Features
 
-```bash
-./start.bat
-```
-To run:
+- 📝 **Create Posts** - Share your thoughts in short messages
+- ❤️ **Engage** - Like and comment on other users' posts
+- 🎭 **Sentiment Analysis** - Automatic mood detection for posts
+- 🔒 **Secure Auth** - Safe registration and login system
+- ⚡ **High Performance** - Powered by Bun, Pino, and Drizzle ORM
 
-```bash
-./stop.bat
-```
+## 🚀 Tech Stack
 
-This project was created using `bun init` in bun v1.1.38. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+- 🎨 **Frontend**: [Nuxt 3](https://nuxt.com) + [TailwindCSS](https://tailwindcss.com)
+- 🛠️ **Backend**: [Express.js](https://expressjs.com) + [Bun](https://bun.sh)
+- 💾 **Database**: [PostgreSQL](https://www.postgresql.org) + [Drizzle ORM](https://orm.drizzle.team)
 
+## 🛠️ Prerequisites
 
-Hallo Wattana
+Before you begin, ensure you have the following installed:
+- [Bun](https://bun.sh/) (JavaScript Runtime)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+## 📦 Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <REPO-URL>
+   cd minitwitter
+   ```
+
+2. **Install dependencies**
+   ```bash
+   ./install.bat
+   ```
+
+3. **Set up the database**
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Start the backend**
+   ```bash
+   bun run --watch src/app.ts
+   ```
+
+5. **Start the frontend**
+   ```bash
+   cd frontend
+   bun run dev
+   ```
+
+6. **Stop the application**
+   To stop the application, you can simply close the terminal windows running the backend and frontend.
+
+## 🌐 Local Development
+
+The application will be available at:
+- Frontend: `http://localhost:3001`
+- Backend: `http://localhost:3000`
+- Database UI: `http://localhost:4983`
+
+## 📝 License
+
+This project is part of the TEKO Software and Platform Architecture course.
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ using Bun and modern web technologies</sub>
+</div>

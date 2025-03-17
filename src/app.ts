@@ -5,6 +5,7 @@ import cors from 'cors'
 import { initializeAPI } from './api'
 import { initializeMessageBroker } from './message-broker'
 import { initializeCache } from './services/cache'
+import { logger } from './services/logger'
 
 
 // Server initialisieren
@@ -31,6 +32,6 @@ if (SERVER_ROLE === 'all' || SERVER_ROLE === 'api') {
 
     // Server starten
     app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    logger.info(`Example app listening on port ${port}`)
     })
 }
