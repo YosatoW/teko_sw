@@ -42,7 +42,9 @@ Before you begin, ensure you have the following installed:
 
 2. **Install dependencies**
    ```bash
-   ./install.bat
+   bun install
+   cd .\frontend\
+   bun install
    ```
 
 3. **Set up the database**
@@ -67,16 +69,4 @@ Before you begin, ensure you have the following installed:
 ## 🌐 Local Development
 
 The application will be available at:
-- Frontend: `http://localhost:3001`
-- Backend: `http://localhost:3000`
-- Database UI: `http://localhost:4983`
-
-## 📝 License
-
-This project is part of the TEKO Software and Platform Architecture course.
-
----
-
-<div align="center">
-  <sub>Built with ❤️ using Bun and modern web technologies</sub>
-</div>
+- Frontend: `http://localhost:4000`
