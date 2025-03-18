@@ -12,7 +12,7 @@
 #### Evaluation diagram: PostgresSQL: Database initialization
 ![PostgresSQL: Database initialization](images/databaseinitialization.png)	
 ![PostgresSQL: Database initialization](images/databaseinitialization2.png)
-
+![alt text](image.png)
 ## performance_tests
 												Blerti:			Chien:			Wattana:
 	scaling factor:								100				100				100
@@ -113,25 +113,26 @@
 #### Evaluation diagram: Load-Test with Caches
 ![Load-Test with Caches](images/LoadTestWithCaches.png)
 
+
 ## load-test | CACHE_ACTIVE = "false"
 
 ### Blerti:
-	checks:						
-	data_received:				
-	data_sent:					
-	http_req_blocked:			
-	http_req_connecting:		
-	http_req_duration:			
-	http_req_failed:			
-	http_req_receiving:			
-	http_req_sending:			
-	http_req_tls_handshaking:	
-	http_req_waiting:			
-	http_reqs:					
-	iteration_duration:			
-	iterations:					
-	running:					
-	default ✓					
+	checks:						0.00%			0 out of 100000
+	data_received:				31 MB			2.6 MB/s
+	data_sent:					8.7 MB			730 kB/s
+	http_req_blocked:			avg=14.6µs		min=0s			med=0s			max=25.01ms		p(90)=0s		p(95)=0s
+	http_req_connecting:		avg=1.51µs		min=0s			med=0s			max	=7.31ms		p(90)=0s		p(95)=0s
+	http_req_duration:			avg=5.84ms		min=0s			med=3.53ms		max=3.87s		p(90)=6.14ms	p(95)=7.26ms
+	http_req_failed:			100.00%			100000 out of 100000
+	http_req_receiving:			avg=49.77µs		min=0s			med=0s			max=9.72ms		p(90)=0s		p(95)=513.59µs
+	http_req_sending:			avg=13.55µs		min=0s			med=0s			max=7.1ms		p(90)=0s		p(95)=0s
+	http_req_tls_handshaking:	avg=0s			min=0s			med=0s			max=0s			p(90)=0s		p(95)=0s
+	http_req_waiting:			avg=5.78ms		min=0s			med=3.45ms		max=3.87s		p(90)=6.05ms	p(95)=7.14ms
+	http_reqs:					100000			8388.921051/s
+	iteration_duration:			avg=5.94ms		min=0s			med=3.63ms		max=3.89s		p(90)=6.27ms	p(95)=7.39ms
+	iterations:					100000			8388.921051/s
+	running:					(00m11.9s)		00/50 VUs		100000 complete and 0 interrupted iterations
+	default ✓					50 VUs			00m11.9s/10m0s  100000/100000 shared iters				
 
 ### Chien:
 	checks:						0.00%			0 out of 100000
@@ -172,11 +173,11 @@
 #### Evaluation diagram: Load-Test without Caches
 
 ![Load-Test without Caches](images/LoadTestWithoutCaches.png)
-![alt text](images/ToDo.png)
 
 #### Evaluation diagram: Load-Test with and without Caches
 ![Load-Test with and without Caches](images/LoadTestWithAndWithoutCaches.png)
-![alt text](images/ToDo.png)
+
+
 
 ## stress-test | CACHE_ACTIVE = "true"
 	scenarios: (100.00%) 1 scenario, 2000 max VUs, 4m30s max duration (incl. graceful stop):
@@ -258,31 +259,31 @@
 
 ### Blerti:
 		✗ response code was 200
-		↳  0% — ✓ 0 / ✗ 1167
+		↳  0% — ✓ 0 / ✗ 2527
 
-	checks:						
-	data_received:				
-	data_sent:					
-	http_req_blocked:			
-	http_req_connecting:		
-	http_req_duration:			
-	http_req_failed:			
-	http_req_receiving:			
-	http_req_sending:			
-	http_req_tls_handshaking:	
-	http_req_waiting:			
-	http_reqs:					
-	iteration_duration:			
-	iterations:					
-	vus:						
-	vus_max:					
-	running:					
-	default ✓					
+	checks:						0.00%			0 out of 2527
+	data_received:				794 kB			206 kB/s
+	data_sent:					220 kB			57 kB/s
+	http_req_blocked:			avg=5.57µs		min=0s			med=0s			max=2.01ms		p(90)=0s		p(95)=0s
+	http_req_connecting:		avg=1.44µs		min=0s			med=0s			max=2.01ms		p(90)=0s		p(95)=0s
+	http_req_duration:			avg=2.3ms		min=0s			med=585.5µs		max=3.74s		p(90)=1.22ms	p(95)=1.63ms
+	http_req_failed:			100.00%			2527 out of 2527
+	http_req_receiving:			avg=48.11µs		min=0s			med=0s			max=1ms			p(90)=143.84µs	p(95)=524µs
+	http_req_sending:			avg=9.29µs		min=0s			med=0s			max=1.52ms		p(90)=0s		p(95)=0s
+	http_req_tls_handshaking:	avg=0s			min=0s			med=0s			max=0s			p(90)=0s		p(95)=0s
+	http_req_waiting:			avg=2.24ms		min=0s			med=552.2µs		max=3.74s		p(90)=1.16ms	p(95)=1.54ms
+	http_reqs:					2527			653.839307/s
+	iteration_duration:			avg=2.37ms		min=0s			med=712.2µs		max=3.75s		p(90)=1.33ms	p(95)=1.71ms
+	iterations:					2527			653.839307/s
+	vus:						4				min=1			max=4
+	vus_max:					2000			min=2000		max=2000
+	running:					(0m03.9s)		0000/2000 VUs, 2527 complete and 4 interrupted iterations  
+	default ✓					0004/2000 VUs	0m03.9s/4m00.0s					
 
 ### Chien:
 		✗ response code was 200
 		↳  0% — ✓ 0 / ✗ 9999
-0.00%   0 out of 9999
+
 	checks:						0.00%			0 out of 9999
 	data_received:				3.1 MB			317 kB/s
 	data_sent:					871 kB			88 kB/s
@@ -326,8 +327,6 @@
 
 #### Evaluation diagram: Stress-Test without Caches
 ![Stress-Test without Caches](images/StressTestWithoutCaches.png)
-![alt text](images/ToDo.png)
 
 #### Evaluation diagram: Stress-Test with and without Caches
 ![Stress-Test with and without Caches](images/StressTestWithAndWithoutCaches.png)
-![alt text](images/ToDo.png)
