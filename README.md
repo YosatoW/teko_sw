@@ -69,4 +69,5 @@ Before you begin, ensure you have the following installed:
 ## 🌐 Local Development
 
 The application will be available at:
-- Frontend: `http://localhost:4000`
+- Frontend: [http://localhost:4000](http://localhost:4000)
+
