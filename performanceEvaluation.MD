@@ -12,7 +12,7 @@
 #### Evaluation diagram: PostgresSQL: Database initialization
 ![PostgresSQL: Database initialization](images/databaseinitialization.png)	
 ![PostgresSQL: Database initialization](images/databaseinitialization2.png)
-![alt text](image.png)
+
 ## performance_tests
 												Blerti:			Chien:			Wattana:
 	scaling factor:								100				100				100
