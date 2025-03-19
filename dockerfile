@@ -1,7 +1,7 @@
 #Es wird den Ablauf definiert wie ein Image gebaut wird.#
 
 # base Image with Bun pre-installed
-FROM oven/bun:latest
+FROM oven/bun:1.2.5
 # Set the working directory
 WORKDIR /app
 # Copy the Cource Code

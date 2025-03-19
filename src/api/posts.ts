@@ -10,6 +10,8 @@ export const initializePostsAPI = (app: Express) => {
     app.get('/api/posts', async (req: Request, res: Response) => {
         try {
             const userId = req.user?.id
+    
+            // Get posts with like counts using Drizzle functions
             const posts = await db
                 .select({
                     id: postsTable.id,
@@ -19,20 +21,23 @@ export const initializePostsAPI = (app: Express) => {
                     createdAt: postsTable.createdAt,
                     sentiment: postsTable.sentiment,
                     correction: postsTable.correction,
-                    likeCount: sql`COALESCE(SUM(${likesTable.value}), 0)::integer`,
-                    userLikeValue: sql`MAX(CASE WHEN ${likesTable.userId} = ${userId} THEN ${likesTable.value} ELSE NULL END)::integer`
+                    likeCount: () => count(likesTable.value),
+                    userLikeValue: likesTable.value
                 })
                 .from(postsTable)
                 .leftJoin(usersTable, eq(postsTable.userId, usersTable.id))
-                .leftJoin(likesTable, eq(postsTable.id, likesTable.postId))
-                .groupBy(postsTable.id, usersTable.username)
+                .leftJoin(likesTable, and(
+                    eq(postsTable.id, likesTable.postId),
+                    eq(likesTable.userId, userId ?? 0)
+                ))
+                .groupBy(postsTable.id, usersTable.username, likesTable.value)
                 .orderBy(desc(postsTable.createdAt))
-
+    
             // Filter out hate speech posts from other users
             const filteredPosts = posts.filter(post => 
                 post.sentiment !== 'hate_speech' || post.userId === userId
             )
-
+    
             // Fetch comments for each post
             const postsWithComments = await Promise.all(
                 filteredPosts.map(async (post) => {
@@ -45,21 +50,24 @@ export const initializePostsAPI = (app: Express) => {
                             createdAt: commentsTable.createdAt,
                             sentiment: commentsTable.sentiment,
                             correction: commentsTable.correction,
-                            likeCount: sql`COALESCE(SUM(${likesTable.value}), 0)::integer`,
-                            userLikeValue: sql`MAX(CASE WHEN ${likesTable.userId} = ${userId} THEN ${likesTable.value} ELSE NULL END)::integer`
+                            likeCount: () => count(likesTable.value),
+                            userLikeValue: likesTable.value
                         })
                         .from(commentsTable)
                         .leftJoin(usersTable, eq(commentsTable.userId, usersTable.id))
-                        .leftJoin(likesTable, eq(commentsTable.id, likesTable.commentId))
+                        .leftJoin(likesTable, and(
+                            eq(commentsTable.id, likesTable.commentId),
+                            eq(likesTable.userId, userId ?? 0)
+                        ))
                         .where(eq(commentsTable.postId, post.id))
-                        .groupBy(commentsTable.id, usersTable.username)
-                        .orderBy(asc(commentsTable.createdAt)) // Changed to ascending order
-
+                        .groupBy(commentsTable.id, usersTable.username, likesTable.value)
+                        .orderBy(asc(commentsTable.createdAt))
+    
                     // Filter out hate speech comments from other users
                     const filteredComments = comments.filter(comment =>
                         comment.sentiment !== 'hate_speech' || comment.userId === userId
                     )
-
+    
                     return { ...post, comments: filteredComments }
                 })
             )
