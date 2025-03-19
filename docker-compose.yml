@@ -29,12 +29,15 @@ services:
       context: frontend
       dockerfile: Dockerfile
     environment:
-      NUX_PubliC_API_BASE_URL: http://localhost:80
+      NUXT_PUBLIC_API_BASE_URL: http://localhost:80
 
   minitwitter1:
     image: wotasoy/simple-api
     container_name: minitwitter1
     restart: always
+    build:
+      context: .
+      dockerfile: dockerfile
     environment:
       DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
       OLLAMA_HOST: http://ollama:11434
@@ -47,6 +50,9 @@ services:
     image: wotasoy/simple-api
     container_name: minitwitter2
     restart: always
+    build:
+      context: .
+      dockerfile: dockerfile
     environment:
       DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
       OLLAMA_HOST: http://ollama:11434
@@ -59,6 +65,9 @@ services:
     image: wotasoy/simple-api
     container_name: minitwitter-worker
     restart: always
+    build:
+      context: .
+      dockerfile: dockerfile
     environment:
       DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
       OLLAMA_HOST: http://ollama:11434

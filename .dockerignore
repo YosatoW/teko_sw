@@ -186,3 +186,4 @@ dist
 docker-data
 start.bat
 stop.bat
+frontend
