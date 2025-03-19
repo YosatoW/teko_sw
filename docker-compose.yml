@@ -43,6 +43,7 @@ services:
       OLLAMA_HOST: http://ollama:11434
       REDIS_HOST: redis
       SERVER_ROLE: api
+      JWT_SECRET: supersecret123
 
   minitwitter2:
     image: wotasoy/simple-api
@@ -56,6 +57,7 @@ services:
       OLLAMA_HOST: http://ollama:11434
       REDIS_HOST: redis
       SERVER_ROLE: api
+      JWT_SECRET: supersecret123
 
   minitwitter-worker:
     image: wotasoy/simple-api
@@ -69,6 +71,7 @@ services:
       OLLAMA_HOST: http://ollama:11434
       REDIS_HOST: redis
       SERVER_ROLE: worker
+      JWT_SECRET: supersecret123
 
   ollama:
     image: ollama/ollama
