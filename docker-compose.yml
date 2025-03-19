@@ -12,6 +12,8 @@ services:
   postgres:
     container_name: postgres
     image: postgres:latest
+    container_name: postgres
+    image: postgres:latest
     restart: always
     ports:
       - 5432:5432
@@ -30,6 +32,7 @@ services:
       dockerfile: Dockerfile
     environment:
       NUXT_PUBLIC_API_BASE_URL: http://localhost:80
+      NUXT_PUBLIC_API_BASE_URL: http://localhost:80
 
   minitwitter1:
     image: wotasoy/simple-api
@@ -39,6 +42,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
+      DATABASE_URL: postgressql://postgres:supersecret123@postgres:5432/minitwitter
       DATABASE_URL: postgressql://postgres:supersecret123@postgres:5432/minitwitter
       OLLAMA_HOST: http://ollama:11434
       REDIS_HOST: redis
@@ -53,6 +57,7 @@ services:
       dockerfile: Dockerfile
     environment:
       DATABASE_URL: postgressql://postgres:supersecret123@postgres:5432/minitwitter
+      DATABASE_URL: postgressql://postgres:supersecret123@postgres:5432/minitwitter
       OLLAMA_HOST: http://ollama:11434
       REDIS_HOST: redis
       SERVER_ROLE: api
@@ -65,6 +70,7 @@ services:
       context: .
       dockerfile: Dockerfile    
     environment:
+      DATABASE_URL: postgressql://postgres:supersecret123@postgres:5432/minitwitter
       DATABASE_URL: postgressql://postgres:supersecret123@postgres:5432/minitwitter
       OLLAMA_HOST: http://ollama:11434
       REDIS_HOST: redis

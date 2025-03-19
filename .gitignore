@@ -203,5 +203,3 @@ logs
 
 #Custom
 docker-data
-start.bat
-stop.bat

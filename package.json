@@ -5,6 +5,7 @@
   "devDependencies": {
     "@types/bun": "latest",
     "@types/express": "^5.0.0",
+    "@types/express-rate-limit": "^6.0.2",
     "@types/pg": "^8.11.11",
     "drizzle-kit": "^0.30.5",
     "tsx": "^4.19.3"
@@ -16,7 +17,6 @@
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/express-prometheus-middleware": "^1.2.3",
-    "@types/express-rate-limit": "^6.0.2",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/k6": "^0.57.1",
     "bcryptjs": "^3.0.2",
