@@ -43,8 +43,8 @@ Before you begin, ensure you have the following installed:
 2. **Install dependencies**
    ```bash
    bun install
-   cd .\frontend\
-   bun install
+   cd .\frontend\                #if running local
+   bun install                   #if running local
    ```
 
 3. **Set up the database**
@@ -54,20 +54,27 @@ Before you begin, ensure you have the following installed:
 
 4. **Start the backend**
    ```bash
-   bun run --watch src/app.ts
+   bun run --watch src/app.ts    #if running local
    ```
-
-5. **Start the frontend**
+5. **Push drizzle-kit**
    ```bash
-   cd frontend
-   bun run dev
+   bunx drizzle-kit push         #if running local
    ```
 
-6. **Stop the application**
+6. **Start the frontend**
+   ```bash
+   cd frontend                   #if running local
+   bun run dev                   #if running local
+   ```
+
+7. **Stop the application**
    To stop the application, you can simply close the terminal windows running the backend and frontend.
 
 ## 🌐 Local Development
 
 The application will be available at:
-- Frontend: [http://localhost:4000](http://localhost:4000)
+- [http://localhost:80](http://localhost:80)
+
+**If running local (Working host)**
+- [http://localhost:4000](http://localhost:4000)
 

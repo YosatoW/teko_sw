@@ -10,8 +10,8 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
 
   postgres:
-    container_name: postgres_db
-    image: postgres
+    container_name: postgres
+    image: postgres:latest
     restart: always
     ports:
       - 5432:5432
@@ -39,12 +39,10 @@ services:
       context: .
       dockerfile: dockerfile
     environment:
-      DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
+      DATABASE_URL: postgressql://postgres:supersecret123@postgres:5432/minitwitter
       OLLAMA_HOST: http://ollama:11434
       REDIS_HOST: redis
       SERVER_ROLE: api
-    volumes:
-      - ./docker-data/postgres_db:/var/lib/postgresql/data
 
   minitwitter2:
     image: wotasoy/simple-api
@@ -54,12 +52,10 @@ services:
       context: .
       dockerfile: dockerfile
     environment:
-      DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
+      DATABASE_URL: postgressql://postgres:supersecret123@postgres:5432/minitwitter
       OLLAMA_HOST: http://ollama:11434
       REDIS_HOST: redis
       SERVER_ROLE: api
-    volumes:
-      - ./docker-data/postgres_db:/var/lib/postgresql/data
 
   minitwitter-worker:
     image: wotasoy/simple-api
@@ -69,12 +65,10 @@ services:
       context: .
       dockerfile: dockerfile
     environment:
-      DATABASE_URL: postgressql://postgres:supersecret123@my-postgres:5432/minitwitter
+      DATABASE_URL: postgressql://postgres:supersecret123@postgres:5432/minitwitter
       OLLAMA_HOST: http://ollama:11434
       REDIS_HOST: redis
       SERVER_ROLE: worker
-    volumes:
-      - ./docker-data/postgres_db:/var/lib/postgresql/data
 
   ollama:
     image: ollama/ollama
